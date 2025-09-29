@@ -1,0 +1,254 @@
+.sobre-nosotros {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 60px 40px;
+  background-color: #fff;
+  gap: 200px;
+  width: 1400px;
+  margin: 0 auto;
+  text-align: justify;
+}
+
+.luckiest-guy-regular {
+  font-family: "Luckiest Guy", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.texto {
+  flex: 1 1 500px;
+  width: 500px;
+  align-items: center;
+}
+
+.texto h2 {
+  font-size: 80px;
+  color: #2e8b57;
+  margin-bottom: 20px;
+  text-align: left;
+  font-family: Luckiest Guy;
+  letter-spacing: 5px;
+  margin-top: 50px;
+}
+
+.texto p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #333333a7;
+  font-family: monospace;
+  letter-spacing: 1px;
+}
+
+.visual {
+  flex: 1 1 400px;
+  max-width: 500px;
+  text-align: center;
+}
+
+.imagen-principal {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  object-fit: cover;
+  margin-bottom: 30px;
+}
+
+.estadisticas {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+
+.estadisticas li {
+  background-color: #f0fff0;
+  border: 1px solid #cce5cc;
+  border-radius: 10px;
+  padding: 15px;
+  font-size: 1rem;
+  color: #2e8b57;
+}
+
+#stat-1:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.6);
+}
+#stat-2:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.6);
+}
+#stat-3:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.6);
+}
+#stat-4:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.6);
+}
+
+.estadisticas li strong {
+  display: block;
+  font-size: 1.6rem;
+  margin-bottom: 5px;
+}
+
+.mision {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px;
+  background-color: #ffffff;
+  gap: 200px;
+  max-width: 1400px;
+  margin: 0 auto;
+  text-align: justify;
+}
+
+.mision-contenido {
+  flex: 1 1 500px;
+  max-width: 600px;
+}
+
+.mision-contenido h2 {
+  font-size: 72px;
+  color: #2e8b57;
+  margin-bottom: 30px;
+  font-family: "Luckiest Guy", cursive;
+  letter-spacing: 4px;
+  text-align: left;
+  margin-top: 40px;
+}
+
+.mision-contenido p {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  color: #444;
+  font-family: "Courier New", monospace;
+  letter-spacing: 0.5px;
+}
+
+.mision-imagen {
+  flex: 1 1 400px;
+  max-width: 500px;
+  text-align: center;
+}
+
+.mision-imagen img {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  object-fit: cover;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+.vision {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px;
+  background-color: #ffffff;
+  gap: 200px;
+  max-width: 1400px;
+  margin: 0 auto;
+  text-align: justify;
+}
+
+.vision-imagen {
+  flex: 1 1 400px;
+  max-width: 500px;
+  text-align: center;
+}
+
+.vision-imagen img {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  object-fit: cover;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.vision-contenido {
+  flex: 1 1 500px;
+  max-width: 600px;
+}
+
+.vision-contenido h2 {
+  font-size: 72px;
+  color: #2e8b57;
+  margin-bottom: 30px;
+  font-family: "Luckiest Guy", cursive;
+  letter-spacing: 4px;
+  text-align: left;
+  margin-top: 40px;
+}
+
+.vision-contenido p {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  color: #444;
+  font-family: "Courier New", monospace;
+  letter-spacing: 0.5px;
+}
+
+.valores {
+  padding: 80px 40px;
+  background-color: #ffffff;
+  max-width: 1400px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.valores h2 {
+  font-size: 72px;
+  color: #2e8b57;
+  font-family: "Luckiest Guy", cursive;
+  letter-spacing: 4px;
+  margin-bottom: 60px;
+}
+
+.valores-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 60px;
+}
+
+.valor {
+  background-color: #f0fff0;
+  border: 1px solid #cce5cc;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.valor:hover {
+  transform: translateY(-5px);
+}
+
+.valor img {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 20px;
+}
+
+.valor h3 {
+  font-size: 1.4rem;
+  color: #2e8b57;
+  margin-bottom: 15px;
+  font-family: "Courier New", monospace;
+}
+
+.valor p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #444;
+  font-family: "Courier New", monospace;
+  letter-spacing: 0.5px;
+}
