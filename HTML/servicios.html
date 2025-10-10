@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios - PetZone</title>
+    <link rel="stylesheet" href="../CSS/style.css">
+    <link rel="stylesheet" href="../CSS/style-servicios.css">
+    <script src="../JS/servicio.js" defer></script>
+</head>
+
+<body>
+    <!-- HEADER - NAVBAR -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="navbar__logo">
+                <a href="../index.html">
+                    <img src="../IMG/Logo.png" alt="Logo PetZone" class="navbar__logo-img">
+                </a>
+                <a href="../index.html" class="navbar__logo-text">
+                    <tt>PetZone</tt>
+                </a>
+            </div>
+
+            <ul class="navbar__menu">
+                <li class="navbar__item">
+                    <a href="nosotros.html" class="navbar__link"><tt>NOSOTROS</tt></a>
+                </li>
+                <li class="navbar__item">
+                    <a href="productos.html" class="navbar__link"><tt>PRODUCTOS</tt></a>
+                </li>
+                <li class="navbar__item">
+                    <a href="servicios.html" class="navbar__link"><tt>SERVICIOS</tt></a>
+                </li>
+                <li class="navbar__item">
+                    <a href="reserva.html" class="navbar__link"><tt>RESERVA</tt></a>
+                </li>
+            </ul>
+
+            <button class="navbar__btn"><tt>CONTACTO</tt></button>
+        </nav>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+        <!-- SECCIÓN HERO SERVICIOS -->
+        <section class="services-hero">
+            <div class="services-hero__container">
+                <div class="services-hero__content">
+                    <div class="services-hero__image-left">
+                        <img src="../IMG/Servicios/Servicios_left.png" alt="Perro en consulta veterinaria"
+                            class="services-hero__img">
+                    </div>
+
+                    <div class="services-hero__title-wrapper">
+                        <h1 class="services-hero__title">SERVICIOS</h1>
+                        <img src="../IMG/Servicios/Servicios Header.png" class="services-hero__pets">
+                    </div>
+
+                    <div class="services-hero__image-right">
+                        <img src="../IMG/Servicios/Servicios_right.png" class="services-hero__img">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN PAQUETES -->
+        <section class="packages">
+            <div class="packages__container">
+                <h2 class="packages__title">PAQUETES</h2>
+
+                <!-- PESTAÑAS DE NAVEGACIÓN -->
+                <div class="packages__tabs">
+                    <button class="packages__tab packages__tab--active" data-package="elegancia">
+                        <svg class="packages__tab-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                        <span>La Elegancia Esencial</span>
+                    </button>
+
+                    <button class="packages__tab" data-package="spa">
+                        <svg class="packages__tab-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
+                            <path
+                                d="M12 5V3M12 21V19M19 12H21M3 12H5M16.95 7.05L18.36 5.64M5.64 18.36L7.05 16.95M16.95 16.95L18.36 18.36M5.64 5.64L7.05 7.05"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                        <span>El Día de Spa Exclusivo</span>
+                    </button>
+
+                    <button class="packages__tab" data-package="reyes">
+                        <svg class="packages__tab-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M12 2L15 8L22 9L17 14L18 21L12 18L6 21L7 14L2 9L9 8L12 2Z"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                        <span>El Trato de Reyes</span>
+                    </button>
+                </div>
+
+                <!-- CONTENIDO DE LOS PAQUETES -->
+                <div class="packages__content">
+                    <!-- PAQUETE 1: LA ELEGANCIA ESENCIAL -->
+                    <div class="package package--active" data-package-content="elegancia">
+                        <div class="package__image">
+                            <img src="../IMG/Servicios/S01.avif" class="package__img">
+                        </div>
+
+                        <div class="package__info">
+                            <div class="package__header">
+                                <span class="package__price">S/. 50</span>
+                                <h3 class="package__name">La Elegancia Esencial</h3>
+                            </div>
+
+                            <ul class="package__features">
+                                <li class="package__feature">
+                                    <svg class="package__feature-icon" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path
+                                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    <span>Baño Suave con Shampoo Apto para Mascotas</span>
+                                </li>
+                                <li class="package__feature">
+                                    <svg class="package__feature-icon" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path
+                                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    <span>Corte y Limado de Uñas</span>
+                                </li>
+                                <li class="package__feature">
+                                    <svg class="package__feature-icon" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path
+                                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    <span>Limpieza de Oreja</span>
+                                </li>
+                                <li class="package__feature">
+                                    <svg class="package__feature-icon" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path
+                                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    <span>Hidratación de Almohadillas de las Patas</span>
+                                </li>
+                                <li class="package__feature">
+                                    <svg class="package__feature-icon" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path
+                                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    <span>Secado con Pelusa y Cepillado</span>
+                                </li>
+                                <li class="package__feature">
+                                    <svg class="package__feature-icon" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path
+                                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    <span>Corbata de Moño o Collar Floral de Cortesía</span>
+                                </li>
+                            </ul>
+
+                            <button class="package__btn">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M8 2V5M16 2V5M3.5 9.09H20.5M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M15.6947 13.7H15.7037M15.6947 16.7H15.7037M11.9955 13.7H12.0045M11.9955 16.7H12.0045M8.29431 13.7H8.30329M8.29431 16.7H8.30329" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Reserva Ahora
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PAQUETE 2: EL DÍA DE SPA EXCLUSIVO -->
+                    <div class="package" data-package-content="spa">
+                        <div class="package__image">
+                            <img src="../IMG/Servicios/S02.avif" class="package__img">
+                        </div>
+
+                        <div class="package__info">
+                            <div class="package__header">
+                                <span class="package__price">S/. 80</span>
+                                <h3 class="package__name">El Día de Spa Exclusivo</h3>
+                            </div>
+
+                            <ul class="package__features">
+                                <li class="package__feature">
+                                    <svg class="package__feature-icon" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path
+                                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    <span>Baño de Acondicionamiento Puro</span>
+                                </li>
+                                <li class="package__feature">
+                                    <svg class="package__feature-icon" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path
+                                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    <span>Corte de pelo de Cuerpo Completo Según Raza</span>
+                                </li>
+                                <li class="package__feature">
+                                    <svg class="package__feature-icon" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path
+                                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    <span>Recorte, Limado y Pulido de Uñas</span>
+                                </li>
+                                <li class="package__feature">
+                                    <svg class="package__feature-icon" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path
+                                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    <span>Limpieza de Oídos y Cepillado de Dientes</span>
+                                </li>
+                                <li class="package__feature">
+                                    <svg class="package__feature-icon" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path
+                                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    <span>Aplicación de Bálsamo Calmante para Patas</span>
+                                </li>
+                                <li class="package__feature">
+                                    <svg class="package__feature-icon" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path
+                                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    <span>Baño Suave con Shampoo Apto para Mascotas</span>
+                                </li>
+                            </ul>
+
+                            <button class="package__btn">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M8 2V5M16 2V5M3.5 9.09H20.5M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M15.6947 13.7H15.7037M15.6947 16.7H15.7037M11.9955 13.7H12.0045M11.9955 16.7H12.0045M8.29431 13.7H8.30329M8.29431 16.7H8.30329" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Reserva Ahora
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PAQUETE 3: EL TRATO DE REYES -->
+                    <div class="package" data-package-content="reyes">
+                        <div class="package__image">
+                            <img src="../IMG/Servicios/S03.avif" class="package__img">
+                        </div>
+
+                        <div class="package__info">
+                            <div class="package__header">
+                                <span class="package__price">S/. 100</span>
+                                <h3 class="package__name">El Trato de Reyes</h3>
+                            </div>
+
+                            <ul class="package__features">
+                                <li class="package__feature">
+                                    <svg class="package__feature-icon" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path
+                                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    <span>Incluye lo del Día de Spa Exclusivo</span>
+                                </li>
+                                <li class="package__feature">
+                                    <svg class="package__feature-icon" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path
+                                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    <span>Tratamiento Facial de Arándanos para Iluminar y Limpiar</span>
+                                </li>
+                                <li class="package__feature">
+                                    <svg class="package__feature-icon" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path
+                                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    <span>Pedicura de Lujo con Esmalte de Uñas</span>
+                                </li>
+                                <li class="package__feature">
+                                    <svg class="package__feature-icon" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path
+                                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    <span>Mascarilla Hidratante para Pelaje Sedoso y Suave</span>
+                                </li>
+                                <li class="package__feature">
+                                    <svg class="package__feature-icon" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path
+                                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    <span>Secado a Mano para un Acabado Esponjoso</span>
+                                </li>
+                                <li class="package__feature">
+                                    <svg class="package__feature-icon" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path
+                                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    <span>Accesorio Personalizado de tu Elección</span>
+                                </li>
+                            </ul>
+
+                            <button class="package__btn">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M8 2V5M16 2V5M3.5 9.09H20.5M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M15.6947 13.7H15.7037M15.6947 16.7H15.7037M11.9955 13.7H12.0045M11.9955 16.7H12.0045M8.29431 13.7H8.30329M8.29431 16.7H8.30329" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Reserva Ahora
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTÓN MOSTRAR MÁS -->
+                <div class="packages__more">
+                    <button class="packages__more-btn">
+                        <span class="packages__more-icon">
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                                <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                                <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                                <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                        <span class="packages__more-text">Mostrar más</span>
+                        <span class="packages__more-icon">
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                                <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                                <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                                <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer__content">
+            <div class="footer__logo">
+                <img src="IMG/Logo.png" alt="PetZone Logo" class="footer__logo-img">
+                <span class="footer__logo-text">PetZone</span>
+            </div>
+
+            <nav class="footer__nav">
+                <ul class="footer__menu">
+                    <p class="footer__copyright">PetZone © 2025. Todos los derechos reservados.</p>
+                </ul>
+            </nav>
+        </div>
+
+    </footer>
+
+    <script src="../JS/servicios.js"></script>
+</body>
+
+</html>
