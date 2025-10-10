@@ -1,10 +1,7 @@
-/* ============================================
-   ESTILOS ESPECÍFICOS PÁGINA PRODUCTOS
-   ============================================ */
+/* ESTILOS ESPECÍFICOS PÁGINA PRODUCTOS*/
 
-/* ============================================
-   SECCIÓN HERO PRODUCTOS
-   ============================================ */
+/* SECCIÓN HERO PRODUCTOS*/
+
 .products-hero {
     width: 100%;
     padding: 3% 4%;
@@ -47,9 +44,7 @@
 }
 
 
-/* ============================================
-   SECCIÓN FILTROS
-   ============================================ */
+/*SECCIÓN FILTROS*/
 .filters {
     width: 100%;
     padding: 3% 4%;
@@ -93,9 +88,7 @@
 }
 
 
-/* ============================================
-   SECCIÓN CATÁLOGO
-   ============================================ */
+/*SECCIÓN CATÁLOGO*/
 .catalog {
     width: 100%;
     padding: 3% 4% 5%;
@@ -208,9 +201,7 @@
 }
 
 
-/* ============================================
-   BOTÓN MOSTRAR MÁS
-   ============================================ */
+/*BOTÓN MOSTRAR MÁS*/
 .catalog__more {
     display: flex;
     justify-content: center;
@@ -243,7 +234,7 @@
 
 .catalog__more-icon {
     display: flex;
-    gap: 0;
+    gap: 0px;
 }
 
 .catalog__more-icon svg {
@@ -263,9 +254,7 @@
 }
 
 
-/* ============================================
-   MEDIA QUERIES - TABLET
-   ============================================ */
+/*  MEDIA QUERIES - TABLET*/
 @media screen and (max-width: 1024px) {
     .products-hero {
         padding: 4% 4%;
@@ -291,10 +280,8 @@
 }
 
 
-/* ============================================
-   MEDIA QUERIES - MOBILE
-   ============================================ */
-@media screen and (max-width: 768px) {
+/*  MEDIA QUERIES - MOBILE */
+@media screen and (max-width: 767px) {
     .products-hero {
         padding: 5% 4%;
     }
@@ -346,9 +333,8 @@
 }
 
 
-/* ============================================
-   MEDIA QUERIES - MOBILE PEQUEÑO
-   ============================================ */
+/* 
+   MEDIA QUERIES - MOBILE PEQUEÑO */
 @media screen and (max-width: 480px) {
     .products-hero {
         padding: 6% 4%;
@@ -401,12 +387,11 @@
     }
 
     .catalog__more-btn {
-        padding: 4% 8%;
-        width: 90%;
+        padding: 4% 6%;
+        /* width: 90%; */
     }
 
-    .catalog__more-icon svg {
-        width: 20px;
-        height: 20px;
+    .catalog__more-text{
+        font-size: 1rem;
     }
 }

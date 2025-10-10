@@ -1,10 +1,8 @@
-/* ============================================
+/* 
    ESTILOS ESPECÍFICOS PÁGINA SERVICIOS
-   ============================================ */
+ */
 
-/* ============================================
-   SECCIÓN HERO SERVICIOS
-   ============================================ */
+/* SECCIÓN HERO SERVICIOS */
 .services-hero {
     width: 100%;
     padding: 3% 4%;
@@ -41,41 +39,39 @@
 }
 
 .services-hero__title-wrapper {
-    flex: 1;
+    flex: 1 1 100%;
     text-align: center;
     position: relative;
-    margin-bottom: 15%;
+    margin-bottom: 2%;
 }
 
 .services-hero__title {
-    font-size: clamp(3rem, 7vw, 5rem);
+    font-size: clamp(3rem, 8vw, 6rem);
     color: #d3d3d3;
-    font-family: Arial, sans-serif;
+    font-family: Merriweather, Arial, sans-serif;
     font-weight: bold;
     letter-spacing: 8px;
     text-transform: uppercase;
     position: relative;
     z-index: 1;
-    margin-bottom: 2%;
+    margin-bottom: -18%;
 }
 
 .services-hero__pets {
-    position: absolute;
-    width: 100%;
+    width: 800px;
     max-width: 1100px;
     height: auto;
     margin: 0 auto;
     object-fit: contain;
+    /* position: absolute;
     top: -7rem;
     right: 0;
     left: 0;
-    bottom: 0rem;
+    bottom: 0rem; */
 }
 
 
-/* ============================================
-   SECCIÓN PAQUETES
-   ============================================ */
+/* SECCIÓN PAQUETES*/
 .packages {
     width: 100%;
     padding: 4% 4%;
@@ -91,7 +87,7 @@
     text-align: center;
     font-size: clamp(2.5rem, 5vw, 3.5rem);
     color: #666;
-    font-family: Arial, sans-serif;
+    font-family: Merriweather, Arial, sans-serif;
     font-weight: bold;
     letter-spacing: 3px;
     margin-bottom: 4%;
@@ -99,9 +95,7 @@
 }
 
 
-/* ============================================
-   PESTAÑAS DE NAVEGACIÓN
-   ============================================ */
+/* PESTAÑAS DE NAVEGACIÓN */
 .packages__tabs {
     display: flex;
     justify-content: center;
@@ -141,20 +135,10 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.packages__tab-icon {
-    width: 24px;
-    height: 24px;
-    transition: transform 0.3s ease;
-}
-
-.packages__tab--active .packages__tab-icon {
-    transform: scale(1.1);
-}
 
 
-/* ============================================
-   CONTENIDO DE PAQUETES
-   ============================================ */
+
+/* CONTENIDO DE PAQUETES */
 .packages__content {
     position: relative;
     min-height: 500px;
@@ -247,12 +231,29 @@
     margin-top: 2px;
 }
 
-.package__feature span {
+.package__feature span:not(.material-symbols-outlined) {
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
+    color: #555;
+    /* font-family: Arial, sans-serif; */
+    line-height: 1.5;
+}
+
+.package__feature .material-symbols-outlined {
+  color: #8d740f;
+  font-variation-settings:
+  'FILL' 1,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 24
+}
+
+/* .package__feature span:not(.material-symbols-outlined) {
     font-size: clamp(0.9rem, 1.5vw, 1rem);
     color: #555;
     font-family: Arial, sans-serif;
     line-height: 1.5;
-}
+} */
+
 
 .package__btn {
     display: inline-flex;
@@ -283,9 +284,8 @@
 }
 
 
-/* ============================================
-   BOTÓN MOSTRAR MÁS
-   ============================================ */
+/* BOTÓN MOSTRAR MÁS */
+
 .packages__more {
     display: flex;
     justify-content: center;
@@ -308,6 +308,7 @@
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(35, 144, 111, 0.3);
+    justify-content: space-evenly;
 }
 
 .packages__more-btn:hover {
@@ -319,6 +320,7 @@
 .packages__more-icon {
     display: flex;
     gap: 0;
+    
 }
 
 .packages__more-icon svg {
@@ -330,17 +332,22 @@
 .packages__more-text {
     text-transform: uppercase;
     letter-spacing: 1px;
+    padding: auto 0px;
 }
 
 
-/* ============================================
-   MEDIA QUERIES - TABLET
-   ============================================ */
+/* MEDIA QUERIES - TABLET */
+
+
 @media screen and (max-width: 1025px) {
     .services-hero__image-left,
     .services-hero__image-right {
         flex: 0 0 12%;
         max-width: 150px;
+    }
+
+    .services-hero__title{
+        margin-bottom: -22%;
     }
 
     .packages__tabs {
@@ -362,9 +369,8 @@
 }
 
 
-/* ============================================
-   MEDIA QUERIES - MOBILE
-   ============================================ */
+/*  MEDIA QUERIES - MOBILE*/
+
 @media screen and (max-width: 768px) {
     .services-hero {
         padding: 4% 4%;
@@ -382,8 +388,9 @@
 
     .services-hero__title-wrapper {
         width: 100%;
-        margin-bottom: 25%;
+        margin-bottom: 5%;
     }
+
 
     .services-hero__pets {
         width: 100%;
@@ -433,19 +440,15 @@
 
     .packages__more-btn {
         padding: 3% 6%;
-        width: 90%;
+        /* width: 100%; */
     }
 
-    .packages__more-icon svg {
-        width: 25px;
-        height: 25px;
-    }
 }
 
 
-/* ============================================
-   MEDIA QUERIES - MOBILE PEQUEÑO
-   ============================================ */
+/* MEDIA QUERIES - MOBILE PEQUEÑO */
+
+
 @media screen and (max-width: 480px) {
     .services-hero {
         padding: 5% 4%;
@@ -453,6 +456,7 @@
 
     .services-hero__title {
         letter-spacing: 4px;
+        font-size: 2.6rem;
     }
 
     .packages {
@@ -481,4 +485,12 @@
         width: 20px;
         height: 20px;
     }
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 000,
+  'GRAD' 0,
+  'opsz' 24
 }

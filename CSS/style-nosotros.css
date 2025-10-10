@@ -1,10 +1,6 @@
-/* ============================================
-   ESTILOS ESPECÍFICOS PÁGINA NOSOTROS
-   ============================================ */
+/*ESTILOS ESPECÍFICOS PÁGINA NOSOTROS*/
 
-/* ============================================
-   SECCIÓN SOBRE NOSOTROS
-   ============================================ */
+/*SECCIÓN SOBRE NOSOTROS*/
 .about {
     width: 100%;
     padding: 5% 4%;
@@ -104,9 +100,7 @@
 }
 
 
-/* ============================================
-   SECCIÓN MISIÓN
-   ============================================ */
+/*SECCIÓN MISIÓN*/
 .mission {
     width: 100%;
     padding: 6% 4%;
@@ -163,9 +157,7 @@
 }
 
 
-/* ============================================
-   SECCIÓN VISIÓN
-   ============================================ */
+/*SECCIÓN VISIÓN*/
 .vision {
     width: 100%;
     padding: 6% 4%;
@@ -222,9 +214,7 @@
 }
 
 
-/* ============================================
-   SECCIÓN VALORES
-   ============================================ */
+/* SECCIÓN VALORES */
 .values {
     width: 100%;
     padding: 6% 4%;
@@ -302,9 +292,9 @@
 }
 
 
-/* ============================================
-   MEDIA QUERIES - TABLET
-   ============================================ */
+/* =MEDIA QUERIES - TABLET */
+
+
 @media screen and (max-width: 1024px) {
     .about__container {
         gap: 5%;
@@ -325,9 +315,8 @@
 }
 
 
-/* ============================================
-   MEDIA QUERIES - MOBILE
-   ============================================ */
+/* MEDIA QUERIES - MOBILE*/
+
 @media screen and (max-width: 768px) {
     .about {
         padding: 6% 4%;
@@ -415,9 +404,8 @@
 }
 
 
-/* ============================================
-   MEDIA QUERIES - MOBILE PEQUEÑO
-   ============================================ */
+/* MEDIA QUERIES - MOBILE PEQUEÑO */
+
 @media screen and (max-width: 480px) {
     .about {
         padding: 8% 4%;

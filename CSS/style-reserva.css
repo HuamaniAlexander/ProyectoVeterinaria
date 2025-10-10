@@ -1,6 +1,4 @@
-/* ================================
-   ESTILOS PÁGINA DE RESERVA
-   ================================ */
+/*  ESTILOS PÁGINA DE RESERVA*/
 
 /* Variables de colores PetZone */
 :root {
@@ -16,9 +14,7 @@
     --color-fondo: #f5f5f5;
 }
 
-/* ================================
-   SECCIÓN FORMULARIO DE RESERVA
-   ================================ */
+/* SECCIÓN FORMULARIO DE RESERVA */
 
 .reserva {
     padding: 60px 20px;
@@ -158,9 +154,7 @@
     box-shadow: 0 5px 15px rgba(184, 217, 73, 0.4);
 }
 
-/* ================================
-   SECCIÓN INFORMACIÓN DE CONTACTO
-   ================================ */
+/* SECCIÓN INFORMACIÓN DE CONTACTO */
 
 .contacto {
     display: grid;
@@ -293,9 +287,9 @@
     height: 800px;
 }
 
-/* ================================
+/* 
    SECCIÓN POR QUÉ ELEGIRNOS
-   ================================ */
+    */
 
 .elegirnos {
     padding: 80px 20px;
@@ -380,9 +374,9 @@
     border-radius: 20px;
 }
 
-/* ================================
+/* 
    RESPONSIVE - TABLET
-   ================================ */
+    */
 
 @media (max-width: 768px) {
     .reserva__contenedor {
@@ -435,9 +429,9 @@
     }
 }
 
-/* ================================
+/* 
    RESPONSIVE - MÓVIL
-   ================================ */
+    */
 
 @media (max-width: 480px) {
     .reserva {
@@ -473,9 +467,9 @@
     }
 }
 
-/* ================================
+/* 
    NAVBAR LINK ACTIVO
-   ================================ */
+    */
 
 .navbar__link--activo {
     color: var(--color-primario) !important;
