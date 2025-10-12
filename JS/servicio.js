@@ -94,34 +94,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-
-// NAVEGACIÓN CON TECLADO (ACCESIBILIDAD)
-tabButtons.forEach((button, index) => {
-    button.addEventListener('keydown', function(e) {
-        let newIndex;
-        
-        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-            e.preventDefault();
-            newIndex = (index + 1) % tabButtons.length;
-            tabButtons[newIndex].focus();
-            tabButtons[newIndex].click();
-        }
-        
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-            e.preventDefault();
-            newIndex = (index - 1 + tabButtons.length) % tabButtons.length;
-            tabButtons[newIndex].focus();
-            tabButtons[newIndex].click();
-        }
-        
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            this.click();
-        }
-    });
-});
-
-
 // SMOOTH SCROLL AL CAMBIAR DE PAQUETE
 tabButtons.forEach(button => {
     button.addEventListener('click', function() {
@@ -134,4 +106,5 @@ tabButtons.forEach(button => {
             });
         }
     });
+
 });
