@@ -12,7 +12,8 @@ require_once '../config/database.php';
 
 header('Content-Type: application/json');
 
-$action = $_GET['action'] ?? $_POST['action'] ?? '';
+$requestData = json_decode(file_get_contents('php://input'), true) ?? [];
+$action = $requestData['action'] ?? $_GET['action'] ?? '';
 $sessionId = getCartSessionId();
 
 try {

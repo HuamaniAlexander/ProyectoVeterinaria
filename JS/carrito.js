@@ -1,7 +1,7 @@
 /**
  * Sistema de Carrito de Compras - PetZone
  * Archivo: JS/carrito.js
- * Incluir en todas las páginas donde se necesite el carrito
+ * VERSIÓN CORREGIDA - Problemas resueltos
  */
 
 // Determinar la ruta correcta de la API según la ubicación de la página
@@ -15,7 +15,7 @@ const CART_API = window.location.pathname.includes('/HTML/')
 document.addEventListener('DOMContentLoaded', () => {
     loadCartCount();
     setupCartModal();
-    setupProductButtons();
+    // NO llamar setupProductButtons aquí porque productos.html tiene su propio control
 });
 
 // ================================================
@@ -43,37 +43,7 @@ function updateCartCount(count) {
 }
 
 // ================================================
-// CONFIGURAR BOTONES DE PRODUCTOS
-// ================================================
-function setupProductButtons() {
-    // Configurar controles de cantidad
-    document.querySelectorAll('.quantity-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const input = this.closest('.product__quantity-controls').querySelector('.quantity-input');
-            const max = parseInt(input.getAttribute('max'));
-            const min = parseInt(input.getAttribute('min'));
-            let value = parseInt(input.value);
-            
-            if (this.innerHTML.includes('remove')) {
-                // Botón de menos
-                if (value > min) {
-                    input.value = value - 1;
-                }
-            } else {
-                // Botón de más
-                if (value < max) {
-                    input.value = value + 1;
-                } else {
-                    showToast('Stock máximo alcanzado', 'warning');
-                }
-            }
-        });
-    });
-}
-
-// ================================================
-// AGREGAR AL CARRITO
+// AGREGAR AL CARRITO - VERSIÓN CORREGIDA
 // ================================================
 async function addToCart(button) {
     const productCard = button.closest('.product');
@@ -93,10 +63,20 @@ async function addToCart(button) {
     button.innerHTML = '<span class="material-icons rotating">sync</span> Agregando...';
     button.classList.add('adding');
     
+    // 🔥 LOG PARA DEBUG - Ver qué se está enviando
+    console.log('📤 Enviando datos:', {
+        action: 'add',
+        producto_id: productId,
+        cantidad: quantity
+    });
+    
     try {
         const response = await fetch(CART_API, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
             body: JSON.stringify({
                 action: 'add',
                 producto_id: productId,
@@ -104,9 +84,23 @@ async function addToCart(button) {
             })
         });
         
-        const data = await response.json();
+        // 🔥 LOG PARA DEBUG - Ver la respuesta del servidor
+        const responseText = await response.text();
+        console.log('📥 Respuesta del servidor (raw):', responseText);
+        
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (e) {
+            console.error('❌ Error al parsear JSON:', e);
+            console.log('Respuesta recibida:', responseText);
+            throw new Error('Respuesta del servidor no es JSON válido');
+        }
+        
+        console.log('📥 Datos parseados:', data);
         
         if (data.success) {
+            // ✅ TOAST EN VEZ DE ALERT
             showToast(`✓ ${productName} agregado al carrito`, 'success');
             updateCartCount(data.cart.count);
             quantityInput.value = 1; // Resetear cantidad
@@ -126,8 +120,8 @@ async function addToCart(button) {
             button.classList.remove('adding');
         }
     } catch (error) {
-        console.error('Error:', error);
-        showToast('Error de conexión', 'error');
+        console.error('❌ Error completo:', error);
+        showToast('Error de conexión con el servidor', 'error');
         button.innerHTML = originalHTML;
         button.disabled = false;
         button.classList.remove('adding');
@@ -376,7 +370,7 @@ function decreaseQuantity(button) {
 }
 
 // ================================================
-// TOAST NOTIFICATIONS
+// TOAST NOTIFICATIONS - SIN ALERTS
 // ================================================
 function showToast(message, type = 'info') {
     // Remover toast existente
@@ -421,3 +415,5 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+
+console.log('✅ Carrito.js cargado - Versión corregida');
