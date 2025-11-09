@@ -163,227 +163,319 @@ async function loadActividad() {
 }
 
 // ================================================
-// GESTIÓN DE PRODUCTOS
+// GESTIÓN DE PRODUCTOS - FIX COMPLETO
 // ================================================
+
 let filtroCategoria = "";
 let busquedaProducto = "";
 
 async function loadProductos() {
-  try {
-    const response = await fetch(
-      `${API_URL}productos.php?action=list&categoria=${filtroCategoria}&busqueda=${busquedaProducto}`
-    );
-    const data = await response.json();
+    try {
+        const response = await fetch(
+            `${API_URL}productos.php?action=list&categoria=${filtroCategoria}&busqueda=${busquedaProducto}`
+        );
+        const data = await response.json();
 
-    const tbody = document.getElementById("productosTableBody");
+        const tbody = document.getElementById("productosTableBody");
 
-    if (data.success && data.productos.length > 0) {
-      tbody.innerHTML = data.productos
-        .map(
-          (p) => `
+        if (data.success && data.productos.length > 0) {
+            tbody.innerHTML = data.productos
+                .map(
+                    (p) => `
                 <tr>
-                    <td><img src="${
-                      p.imagen || "../../IMG/no-image.png"
-                    }" alt="${p.nombre}"></td>
+                    <td><img src="${p.imagen || "../../IMG/no-image.png"}" alt="${p.nombre}"></td>
                     <td>${p.id}</td>
                     <td>${p.nombre}</td>
                     <td>${p.categoria_nombre}</td>
                     <td>S/. ${parseFloat(p.precio).toFixed(2)}</td>
                     <td>${p.stock}</td>
-                    <td><span class="status-badge ${
-                      p.activo == 1 ? "active" : "inactive"
-                    }">
+                    <td><span class="status-badge ${p.activo == 1 ? "active" : "inactive"}">
                         ${p.activo == 1 ? "Activo" : "Inactivo"}
                     </span></td>
                     <td class="action-btns">
-                        <button class="btn-edit" onclick="editProducto(${
-                          p.id
-                        })">
+                        <button class="btn-edit" onclick="editProducto(${p.id})">
                             <span class="material-icons">edit</span> Editar
                         </button>
-                        <button class="btn-delete" onclick="deleteProducto(${
-                          p.id
-                        })">
+                        <button class="btn-delete" onclick="deleteProducto(${p.id})">
                             <span class="material-icons">delete</span> Eliminar
                         </button>
                     </td>
                 </tr>
             `
-        )
-        .join("");
-    } else {
-      tbody.innerHTML =
-        '<tr><td colspan="8" class="loading">No hay productos</td></tr>';
+                )
+                .join("");
+        } else {
+            tbody.innerHTML = '<tr><td colspan="8" class="loading">No hay productos</td></tr>';
+        }
+    } catch (error) {
+        console.error("Error al cargar productos:", error);
     }
-  } catch (error) {
-    console.error("Error al cargar productos:", error);
-  }
 }
 
+// 🔥 FUNCIÓN MEJORADA PARA CARGAR CATEGORÍAS
 async function loadCategorias() {
-  try {
-    const response = await fetch(`${API_URL}categorias.php`);
-    const data = await response.json();
+    try {
+        console.log('🔄 Cargando categorías...');
+        
+        const response = await fetch(`${API_URL}categorias.php`);
+        const data = await response.json();
 
-    if (data.success) {
-      const selects = ["productCategoria", "filterCategoria"];
-      selects.forEach((selectId) => {
-        const select = document.getElementById(selectId);
-        if (select) {
-          const currentValue = select.value;
-          select.innerHTML =
-            selectId === "filterCategoria"
-              ? '<option value="">Todas las categorías</option>'
-              : '<option value="">Seleccionar...</option>';
+        console.log('📥 Respuesta de categorías:', data);
 
-          data.categorias.forEach((cat) => {
-            select.innerHTML += `<option value="${cat.id}">${cat.nombre}</option>`;
-          });
+        if (data.success && data.categorias && data.categorias.length > 0) {
+            // Actualizar ambos selects (formulario de producto Y filtro)
+            const selects = ["productCategoria", "filterCategoria"];
+            
+            selects.forEach((selectId) => {
+                const select = document.getElementById(selectId);
+                
+                if (select) {
+                    console.log(`✅ Actualizando select: ${selectId}`);
+                    
+                    const currentValue = select.value;
+                    
+                    // Limpiar opciones actuales
+                    select.innerHTML = "";
+                    
+                    // Agregar opción por defecto según el tipo de select
+                    if (selectId === "filterCategoria") {
+                        select.innerHTML = '<option value="">Todas las categorías</option>';
+                    } else {
+                        select.innerHTML = '<option value="">Seleccionar categoría...</option>';
+                    }
 
-          select.value = currentValue;
+                    // Agregar las categorías
+                    data.categorias.forEach((cat) => {
+                        const option = document.createElement('option');
+                        option.value = cat.id;
+                        option.textContent = cat.nombre;
+                        select.appendChild(option);
+                        
+                        console.log(`  ➕ Agregada: ${cat.nombre} (ID: ${cat.id})`);
+                    });
+
+                    // Restaurar valor seleccionado si existía
+                    if (currentValue) {
+                        select.value = currentValue;
+                        console.log(`  🔄 Valor restaurado: ${currentValue}`);
+                    }
+                    
+                    console.log(`✅ ${selectId} actualizado con ${data.categorias.length} categorías`);
+                } else {
+                    console.warn(`⚠️ No se encontró el select: ${selectId}`);
+                }
+            });
+            
+            return true;
+        } else {
+            console.error('❌ No hay categorías disponibles');
+            return false;
         }
-      });
+    } catch (error) {
+        console.error("❌ Error al cargar categorías:", error);
+        return false;
     }
-  } catch (error) {
-    console.error("Error al cargar categorías:", error);
-  }
 }
 
 // Event Listeners para filtros
 document.getElementById("searchProductos")?.addEventListener("input", (e) => {
-  busquedaProducto = e.target.value;
-  loadProductos();
+    busquedaProducto = e.target.value;
+    loadProductos();
 });
 
 document.getElementById("filterCategoria")?.addEventListener("change", (e) => {
-  filtroCategoria = e.target.value;
-  loadProductos();
+    filtroCategoria = e.target.value;
+    loadProductos();
 });
 
-function showProductForm(productId = null) {
-  document.getElementById("productFormModal").classList.add("active");
-  document.getElementById("productFormTitle").textContent = productId
-    ? "Editar Producto"
-    : "Nuevo Producto";
+// 🔥 FUNCIÓN MEJORADA PARA MOSTRAR FORMULARIO
+async function showProductForm(productId = null) {
+    console.log('🎯 Abriendo formulario de producto:', productId ? `Editar ID ${productId}` : 'Nuevo');
+    
+    document.getElementById("productFormModal").classList.add("active");
+    document.getElementById("productFormTitle").textContent = productId
+        ? "Editar Producto"
+        : "Nuevo Producto";
 
-  // 🔹 AÑADIR ESTA LÍNEA:
-  loadCategorias(); // ← ESTO FALTABA
+    // 🔥 CARGAR CATEGORÍAS PRIMERO (y esperar a que termine)
+    await loadCategorias();
 
-  if (productId) {
-    loadProductoData(productId);
-  } else {
-    document.getElementById("productForm").reset();
-    document.getElementById("productId").value = "";
-  }
+    if (productId) {
+        // Esperar un poquito más para asegurar que el DOM esté listo
+        setTimeout(() => {
+            loadProductoData(productId);
+        }, 100);
+    } else {
+        document.getElementById("productForm").reset();
+        document.getElementById("productId").value = "";
+        const preview = document.getElementById("imagePreview");
+        if (preview) {
+            preview.innerHTML = '';
+            preview.classList.remove("active");
+        }
+    }
 }
 
 function closeProductForm() {
-  document.getElementById("productFormModal").classList.remove("active");
-  document.getElementById("productForm").reset();
-}
-
-async function loadProductoData(id) {
-  try {
-    const response = await fetch(`${API_URL}productos.php?action=get&id=${id}`);
-    const data = await response.json();
-
-    if (data.success) {
-      const p = data.producto;
-      document.getElementById("productId").value = p.id;
-      document.getElementById("productNombre").value = p.nombre;
-      document.getElementById("productCategoria").value = p.categoria_id;
-      document.getElementById("productPrecio").value = p.precio;
-      document.getElementById("productStock").value = p.stock;
-      document.getElementById("productSku").value = p.codigo_sku || "";
-      document.getElementById("productDescripcion").value = p.descripcion || "";
-      document.getElementById("productDestacado").checked = p.destacado == 1;
-
-      if (p.imagen) {
-        document.getElementById(
-          "imagePreview"
-        ).innerHTML = `<img src="${p.imagen}" alt="Preview">`;
-        document.getElementById("imagePreview").classList.add("active");
-      }
+    document.getElementById("productFormModal").classList.remove("active");
+    document.getElementById("productForm").reset();
+    const preview = document.getElementById("imagePreview");
+    if (preview) {
+        preview.innerHTML = '';
+        preview.classList.remove("active");
     }
-  } catch (error) {
-    console.error("Error al cargar producto:", error);
-  }
 }
 
-document
-  .getElementById("productForm")
-  ?.addEventListener("submit", async (e) => {
+// 🔥 FUNCIÓN MEJORADA PARA CARGAR DATOS DEL PRODUCTO
+async function loadProductoData(id) {
+    try {
+        console.log('📦 Cargando datos del producto ID:', id);
+        
+        const response = await fetch(`${API_URL}productos.php?action=get&id=${id}`);
+        const data = await response.json();
+
+        console.log('📥 Datos del producto:', data);
+
+        if (data.success && data.producto) {
+            const p = data.producto;
+            
+            document.getElementById("productId").value = p.id;
+            document.getElementById("productNombre").value = p.nombre;
+            document.getElementById("productPrecio").value = p.precio;
+            document.getElementById("productStock").value = p.stock;
+            document.getElementById("productSku").value = p.codigo_sku || "";
+            document.getElementById("productDescripcion").value = p.descripcion || "";
+            document.getElementById("productDestacado").checked = p.destacado == 1;
+
+            // 🔥 ASIGNAR CATEGORÍA (verificar que el select esté listo)
+            const selectCategoria = document.getElementById("productCategoria");
+            if (selectCategoria) {
+                console.log(`🔄 Asignando categoría: ${p.categoria_id}`);
+                console.log(`📋 Opciones disponibles:`, Array.from(selectCategoria.options).map(opt => `${opt.value}: ${opt.text}`));
+                
+                selectCategoria.value = p.categoria_id;
+                
+                // Verificar que se asignó correctamente
+                if (selectCategoria.value == p.categoria_id) {
+                    console.log('✅ Categoría asignada correctamente');
+                } else {
+                    console.error('❌ No se pudo asignar la categoría. Categoría ID:', p.categoria_id);
+                }
+            } else {
+                console.error('❌ No se encontró el select de categoría');
+            }
+
+            // Vista previa de imagen
+            if (p.imagen) {
+                const preview = document.getElementById("imagePreview");
+                if (preview) {
+                    preview.innerHTML = `<img src="../../${p.imagen}" alt="Preview">`;
+                    preview.classList.add("active");
+                }
+            }
+        } else {
+            console.error('❌ Error al cargar producto:', data.message);
+            showToast('Error al cargar datos del producto', 'error');
+        }
+    } catch (error) {
+        console.error("❌ Error al cargar producto:", error);
+        showToast('Error de conexión', 'error');
+    }
+}
+
+// 🔥 SUBMIT DEL FORMULARIO
+document.getElementById("productForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const formData = new FormData(e.target);
-    formData.append(
-      "action",
-      document.getElementById("productId").value ? "update" : "create"
-    );
+    const productId = document.getElementById("productId").value;
+    
+    formData.append("action", productId ? "update" : "create");
 
-    try {
-      const response = await fetch(`${API_URL}productos.php`, {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        showToast("Producto guardado exitosamente", "success");
-        closeProductForm();
-        loadProductos();
-        loadEstadisticas();
-      } else {
-        showToast(data.message || "Error al guardar producto", "error");
-      }
-    } catch (error) {
-      showToast("Error al conectar con el servidor", "error");
-    }
-  });
-
-async function deleteProducto(id) {
-  if (!confirm("¿Está seguro de eliminar este producto?")) return;
-
-  try {
-    const response = await fetch(`${API_URL}productos.php`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "delete", id }),
+    // 🔥 LOG para debug
+    console.log('📤 Enviando producto:', {
+        action: productId ? "update" : "create",
+        id: productId,
+        nombre: formData.get('nombre'),
+        categoria_id: formData.get('categoria_id'),
+        precio: formData.get('precio'),
+        stock: formData.get('stock')
     });
 
-    const data = await response.json();
+    try {
+        const response = await fetch(`${API_URL}productos.php`, {
+            method: "POST",
+            body: formData,
+        });
 
-    if (data.success) {
-      showToast("Producto eliminado exitosamente", "success");
-      loadProductos();
-      loadEstadisticas();
-    } else {
-      showToast(data.message || "Error al eliminar producto", "error");
+        const data = await response.json();
+        
+        console.log('📥 Respuesta del servidor:', data);
+
+        if (data.success) {
+            showToast("✓ Producto guardado exitosamente", "success");
+            closeProductForm();
+            setTimeout(() => {
+                loadProductos();
+                loadEstadisticas();
+            }, 300);
+        } else {
+            showToast(data.message || "Error al guardar producto", "error");
+        }
+    } catch (error) {
+        console.error('❌ Error:', error);
+        showToast("Error al conectar con el servidor", "error");
     }
-  } catch (error) {
-    showToast("Error al conectar con el servidor", "error");
-  }
+});
+
+async function deleteProducto(id) {
+    if (!confirm("¿Está seguro de eliminar este producto?")) return;
+
+    try {
+        const response = await fetch(`${API_URL}productos.php`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "delete", id }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showToast("✓ Producto eliminado exitosamente", "success");
+            setTimeout(() => {
+                loadProductos();
+                loadEstadisticas();
+            }, 300);
+        } else {
+            showToast(data.message || "Error al eliminar producto", "error");
+        }
+    } catch (error) {
+        showToast("Error al conectar con el servidor", "error");
+    }
 }
 
 function editProducto(id) {
-  showProductForm(id);
+    showProductForm(id);
 }
 
 // Preview de imagen
 document.getElementById("productImagen")?.addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      document.getElementById(
-        "imagePreview"
-      ).innerHTML = `<img src="${event.target.result}" alt="Preview">`;
-      document.getElementById("imagePreview").classList.add("active");
-    };
-    reader.readAsDataURL(file);
-  }
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const preview = document.getElementById("imagePreview");
+            if (preview) {
+                preview.innerHTML = `<img src="${event.target.result}" alt="Preview">`;
+                preview.classList.add("active");
+            }
+        };
+        reader.readAsDataURL(file);
+    }
 });
+
+console.log('✅ Gestión de Productos - Sistema completo cargado con FIX');
+
 
 // ================================================
 // GESTIÓN DE SLIDERS
@@ -807,46 +899,433 @@ document
   });
 
 // ================================================
-// GESTIÓN DE PEDIDOS
+// GESTIÓN DE PEDIDOS - COMPLETA
 // ================================================
+
 async function loadPedidos() {
-  try {
-    const response = await fetch(`${API_URL}pedidos.php?action=list`);
-    const data = await response.json();
-
-    const tbody = document.getElementById("pedidosTableBody");
-
-    if (data.success && data.pedidos.length > 0) {
-      tbody.innerHTML = data.pedidos
-        .map(
-          (p) => `
+    const filtroEstado = document.getElementById('filterEstado')?.value || '';
+    
+    try {
+        const response = await fetch(`${API_URL}pedidos.php?action=list&estado=${filtroEstado}`);
+        const data = await response.json();
+        
+        const tbody = document.getElementById('pedidosTableBody');
+        
+        if (data.success && data.pedidos.length > 0) {
+            tbody.innerHTML = data.pedidos.map(p => `
                 <tr>
-                    <td>${p.codigo_pedido}</td>
-                    <td>${p.nombre_cliente}</td>
-                    <td>${new Date(p.fecha_pedido).toLocaleDateString(
-                      "es-ES"
-                    )}</td>
-                    <td>S/. ${parseFloat(p.total).toFixed(2)}</td>
-                    <td><span class="status-badge ${p.estado}">${
-            p.estado
-          }</span></td>
+                    <td><strong>${p.codigo_pedido}</strong></td>
+                    <td>
+                        <div>${p.nombre_cliente}</div>
+                        <small style="color: #666;">${p.email_cliente}</small>
+                    </td>
+                    <td>${formatDate(p.fecha_pedido)}</td>
+                    <td><strong style="color: var(--primary);">S/. ${parseFloat(p.total).toFixed(2)}</strong></td>
+                    <td>
+                        <span class="status-badge ${getEstadoClass(p.estado)}">
+                            ${formatEstado(p.estado)}
+                        </span>
+                    </td>
                     <td class="action-btns">
-                        <button class="btn-view" onclick="viewPedido(${p.id})">
+                        <button class="btn-view" onclick="viewPedido(${p.id})" title="Ver detalles">
                             <span class="material-icons">visibility</span>
+                            Ver
+                        </button>
+                        <button class="btn-edit" onclick="showEstadoModal(${p.id}, '${p.estado}')" title="Cambiar estado">
+                            <span class="material-icons">edit</span>
+                            Estado
                         </button>
                     </td>
                 </tr>
-            `
-        )
-        .join("");
-    } else {
-      tbody.innerHTML =
-        '<tr><td colspan="6" class="loading">No hay pedidos</td></tr>';
+            `).join('');
+        } else {
+            tbody.innerHTML = '<tr><td colspan="6" class="loading">No hay pedidos registrados</td></tr>';
+        }
+    } catch (error) {
+        console.error('Error al cargar pedidos:', error);
+        document.getElementById('pedidosTableBody').innerHTML = 
+            '<tr><td colspan="6" class="loading" style="color: var(--danger);">Error al cargar pedidos</td></tr>';
     }
-  } catch (error) {
-    console.error("Error al cargar pedidos:", error);
-  }
 }
+
+// Filtro de pedidos por estado
+document.getElementById('filterEstado')?.addEventListener('change', () => {
+    loadPedidos();
+});
+
+// ================================================
+// VER DETALLES DEL PEDIDO
+// ================================================
+async function viewPedido(id) {
+    try {
+        const response = await fetch(`${API_URL}pedidos.php?action=get&id=${id}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            showPedidoModal(data.pedido);
+        } else {
+            showToast('Error al cargar pedido', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('Error de conexión', 'error');
+    }
+}
+
+function showPedidoModal(pedido) {
+    const modalHTML = `
+        <div class="form-modal active" id="pedidoDetailModal" style="z-index: 2001;">
+            <div class="modal-content" style="max-width: 900px;">
+                <div class="modal-header">
+                    <h3>📦 Detalle del Pedido - ${pedido.codigo_pedido}</h3>
+                    <button class="close-btn" onclick="closePedidoModal()">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+                
+                <div style="padding: 2rem; max-height: 70vh; overflow-y: auto;">
+                    <!-- Información del Cliente -->
+                    <div style="background: var(--gray-light); padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
+                        <h4 style="margin-bottom: 1rem; color: var(--primary);">👤 Información del Cliente</h4>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                            <div>
+                                <strong>Nombre:</strong> ${pedido.nombre_cliente}
+                            </div>
+                            <div>
+                                <strong>Email:</strong> ${pedido.email_cliente}
+                            </div>
+                            <div>
+                                <strong>Teléfono:</strong> ${pedido.telefono_cliente}
+                            </div>
+                            <div>
+                                <strong>Estado:</strong> 
+                                <span class="status-badge ${getEstadoClass(pedido.estado)}">
+                                    ${formatEstado(pedido.estado)}
+                                </span>
+                            </div>
+                            <div style="grid-column: 1 / -1;">
+                                <strong>Dirección de envío:</strong><br>
+                                ${pedido.direccion_envio}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Productos del Pedido -->
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="margin-bottom: 1rem; color: var(--primary);">🛒 Productos</h4>
+                        <table class="data-table" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th style="text-align: center;">Cantidad</th>
+                                    <th style="text-align: right;">Precio Unit.</th>
+                                    <th style="text-align: right;">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${pedido.detalles.map(item => `
+                                    <tr>
+                                        <td>${item.nombre_producto}</td>
+                                        <td style="text-align: center;"><strong>${item.cantidad}</strong></td>
+                                        <td style="text-align: right;">S/. ${parseFloat(item.precio_unitario).toFixed(2)}</td>
+                                        <td style="text-align: right;"><strong>S/. ${parseFloat(item.subtotal).toFixed(2)}</strong></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Totales -->
+                    <div style="background: var(--gray-light); padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>Subtotal:</span>
+                            <strong>S/. ${parseFloat(pedido.subtotal).toFixed(2)}</strong>
+                        </div>
+                        ${pedido.descuento > 0 ? `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--success);">
+                            <span>Descuento:</span>
+                            <strong>- S/. ${parseFloat(pedido.descuento).toFixed(2)}</strong>
+                        </div>
+                        ` : ''}
+                        <div style="display: flex; justify-content: space-between; padding-top: 1rem; border-top: 2px solid var(--border-color); font-size: 1.3rem;">
+                            <strong>Total:</strong>
+                            <strong style="color: var(--primary);">S/. ${parseFloat(pedido.total).toFixed(2)}</strong>
+                        </div>
+                    </div>
+
+                    <!-- Información Adicional -->
+                    <div style="background: var(--gray-light); padding: 1.5rem; border-radius: 10px;">
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                            <div>
+                                <strong>Método de Pago:</strong><br>
+                                ${formatMetodoPago(pedido.metodo_pago)}
+                            </div>
+                            <div>
+                                <strong>Fecha del Pedido:</strong><br>
+                                ${formatDateLong(pedido.fecha_pedido)}
+                            </div>
+                            ${pedido.notas ? `
+                            <div style="grid-column: 1 / -1;">
+                                <strong>Notas:</strong><br>
+                                ${pedido.notas}
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions" style="padding: 1.5rem 2rem; border-top: 2px solid var(--border-color);">
+                    <button class="btn-secondary" onclick="closePedidoModal()">
+                        Cerrar
+                    </button>
+                    <button class="btn-save" onclick="showEstadoModal(${pedido.id}, '${pedido.estado}')">
+                        <span class="material-icons">edit</span>
+                        Cambiar Estado
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function closePedidoModal() {
+    const modal = document.getElementById('pedidoDetailModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// ================================================
+// CAMBIAR ESTADO DEL PEDIDO
+// ================================================
+function showEstadoModal(pedidoId, estadoActual) {
+    closePedidoModal(); // Cerrar modal de detalles si está abierto
+    
+    const modalHTML = `
+        <div class="form-modal active" id="estadoModal" style="z-index: 2002;">
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h3>🔄 Cambiar Estado del Pedido</h3>
+                    <button class="close-btn" onclick="closeEstadoModal()">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+                
+                <div style="padding: 2rem;">
+                    <div class="form-field">
+                        <label><strong>Estado Actual:</strong></label>
+                        <div style="padding: 1rem; background: var(--gray-light); border-radius: 8px; margin-bottom: 1.5rem;">
+                            <span class="status-badge ${getEstadoClass(estadoActual)}">
+                                ${formatEstado(estadoActual)}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="nuevoEstado"><strong>Nuevo Estado:</strong> <span style="color: var(--danger);">*</span></label>
+                        <select id="nuevoEstado" class="filter-select" style="width: 100%; padding: 0.8rem;">
+                            <option value="pendiente" ${estadoActual === 'pendiente' ? 'selected' : ''}>🔶 Pendiente</option>
+                            <option value="procesando" ${estadoActual === 'procesando' ? 'selected' : ''}>⚙️ Procesando</option>
+                            <option value="enviado" ${estadoActual === 'enviado' ? 'selected' : ''}>🚚 Enviado</option>
+                            <option value="entregado" ${estadoActual === 'entregado' ? 'selected' : ''}>✅ Entregado</option>
+                            <option value="cancelado" ${estadoActual === 'cancelado' ? 'selected' : ''}>❌ Cancelado</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: #fff3cd; border-radius: 8px; border-left: 4px solid var(--warning);">
+                        <small style="color: #856404;">
+                            <strong>⚠️ Nota:</strong> El cliente puede recibir una notificación sobre este cambio de estado.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-actions" style="padding: 1.5rem 2rem; border-top: 2px solid var(--border-color);">
+                    <button class="btn-cancel" onclick="closeEstadoModal()">
+                        Cancelar
+                    </button>
+                    <button class="btn-save" onclick="updatePedidoEstado(${pedidoId})">
+                        <span class="material-icons">save</span>
+                        Guardar Cambio
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function closeEstadoModal() {
+    const modal = document.getElementById('estadoModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+async function updatePedidoEstado(pedidoId) {
+    const nuevoEstado = document.getElementById('nuevoEstado').value;
+    
+    if (!nuevoEstado) {
+        showToast('Selecciona un estado', 'warning');
+        return;
+    }
+    
+    // Deshabilitar botón mientras se procesa
+    const btnSave = event.target;
+    const originalHTML = btnSave.innerHTML;
+    btnSave.disabled = true;
+    btnSave.innerHTML = '<span class="material-icons rotating">sync</span> Guardando...';
+    
+    try {
+        const response = await fetch(`${API_URL}pedidos.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'update-estado',
+                id: pedidoId,
+                estado: nuevoEstado
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('✓ Estado actualizado exitosamente', 'success');
+            
+            // Cerrar modal
+            closeEstadoModal();
+            
+            // Esperar un momento y recargar para asegurar que se vea el cambio
+            setTimeout(() => {
+                loadPedidos();
+            }, 300);
+        } else {
+            showToast(data.message || 'Error al actualizar estado', 'error');
+            btnSave.disabled = false;
+            btnSave.innerHTML = originalHTML;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('Error de conexión', 'error');
+        btnSave.disabled = false;
+        btnSave.innerHTML = originalHTML;
+    }
+}
+
+// ================================================
+// FUNCIONES AUXILIARES
+// ================================================
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
+function formatDateLong(dateString) {
+    const date = new Date(dateString);
+    const options = { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    };
+    return date.toLocaleDateString('es-ES', options);
+}
+
+function getEstadoClass(estado) {
+    const classes = {
+        'pendiente': 'pendiente',
+        'procesando': 'procesando',
+        'enviado': 'procesando',
+        'entregado': 'active',
+        'cancelado': 'inactive'
+    };
+    return classes[estado] || 'pendiente';
+}
+
+function formatEstado(estado) {
+    const estados = {
+        'pendiente': '🔶 Pendiente',
+        'procesando': '⚙️ Procesando',
+        'enviado': '🚚 Enviado',
+        'entregado': '✅ Entregado',
+        'cancelado': '❌ Cancelado'
+    };
+    return estados[estado] || estado;
+}
+
+function formatMetodoPago(metodo) {
+    const metodos = {
+        'tarjeta': '💳 Tarjeta de Crédito/Débito',
+        'yape': '📱 Yape',
+        'plin': '📱 Plin',
+        'efectivo': '💵 Efectivo (Contra entrega)',
+        'transferencia': '🏦 Transferencia Bancaria'
+    };
+    return metodos[metodo] || metodo;
+}
+
+// ================================================
+// ESTILOS ADICIONALES PARA PEDIDOS
+// ================================================
+const estilosPedidos = `
+<style>
+.status-badge.procesando {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.form-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 2rem;
+}
+
+.form-modal.active {
+    display: flex;
+}
+
+.data-table thead {
+    background-color: var(--gray-light);
+}
+
+.data-table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+.btn-view {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.btn-view:hover {
+    background-color: #138496;
+}
+</style>
+`;
+
+// Inyectar estilos adicionales
+if (!document.getElementById('estilosPedidos')) {
+    document.head.insertAdjacentHTML('beforeend', estilosPedidos);
+}
+
+console.log('✅ Gestión de Pedidos - Sistema completo cargado');
 
 // ================================================
 // TOAST NOTIFICATIONS
