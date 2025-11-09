@@ -395,3 +395,46 @@
         font-size: 1rem;
     }
 }
+
+.product__quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.quantity-btn {
+    width: 30px;
+    height: 30px;
+    border: 2px solid #23906F;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.quantity-btn:hover {
+    background-color: #23906F;
+    color: white;
+}
+
+.quantity-btn .material-icons {
+    font-size: 1rem;
+}
+
+.quantity-input {
+    width: 50px;
+    text-align: center;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 0.3rem;
+    font-weight: 600;
+}
+
+.product__btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}

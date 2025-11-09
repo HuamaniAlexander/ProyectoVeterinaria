@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="CSS/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
+    <script src="JS/slider-anuncio.js" defer></script>
 </head>
 
 <body>
@@ -38,9 +39,15 @@
                 </li>
             </ul>
 
-            <button class="navbar__btn">CONTACTO</button>
+            <button class="navbar__btn" onclick="toggleCarrito()">
+                <span class="material-icons">shopping_cart</span>
+                CARRITO
+                <span id="cartCount" class="cart-count">0</span>
+            </button>
         </nav>
     </header>
+
+    <div id="topSlider" class="top-slider"></div>
 
     <!-- MAIN CONTENT -->
     <main class="main">
@@ -52,7 +59,7 @@
                     <h2 class="hero__subtitle">CON ESTILO Y CARIÑO</h2>
                     <p class="hero__description">
                         Servicio integral de cuidado y bienestar para tu mascota, diseñado para brindar salud,
-                            comodidad y atención de calidad a tu compañero peludo
+                        comodidad y atención de calidad a tu compañero peludo
                     </p>
                 </div>
                 <div class="hero__image">
@@ -176,17 +183,9 @@
         </div>
 
     </footer>
+    <div id="bottomAnnouncement" class="bottom-announcement"></div>
 
 </body>
 
 
 </html>
-
-
-
-
-
-
-
-
-
