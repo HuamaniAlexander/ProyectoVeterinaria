@@ -1,23 +1,45 @@
 <?php
-// Evitar que se muestren errores como HTML
+/**
+ * API de Anuncios - PetZone
+ * Archivo: api/anuncios.php
+ * 🔥 VERSIÓN CORREGIDA - Problema del checkbox resuelto
+ */
+
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/../logs/php_errors.log');
 
-// Iniciar output buffering para capturar cualquier salida inesperada
 ob_start();
 
-require_once '../config/database.php';
+require_once __DIR__ . '/../config/database.php';
+
+// Limpiar cualquier salida previa
+ob_end_clean();
+
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE');
+header('Access-Control-Allow-Headers: Content-Type');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
 session_start();
 
-header('Content-Type: application/json');
-
+// Permitir 'activos' sin autenticación
 if (!isset($_SESSION['user_id']) && !in_array($_GET['action'] ?? '', ['activos'])) {
     jsonResponse(['success' => false, 'message' => 'No autenticado'], 401);
 }
 
-$action = $_GET['action'] ?? $_POST['action'] ?? 'list';
+$requestData = json_decode(file_get_contents('php://input'), true) ?? [];
+$action = $_GET['action'] ?? $requestData['action'] ?? '';
+
+// Log para debug
+error_log("ANUNCIOS.PHP - Action: " . $action);
+error_log("ANUNCIOS.PHP - Request data: " . print_r($requestData, true));
 
 try {
     switch($action) {
@@ -28,21 +50,22 @@ try {
             getAnuncio();
             break;
         case 'create':
-            createAnuncio();
+            createAnuncio($requestData);
             break;
         case 'update':
-            updateAnuncio();
+            updateAnuncio($requestData);
             break;
         case 'delete':
-            deleteAnuncio();
+            deleteAnuncio($requestData);
             break;
         case 'activos':
             getAnunciosActivos();
             break;
         default:
-            jsonResponse(['success' => false, 'message' => 'Acción no válida'], 400);
+            jsonResponse(['success' => false, 'message' => 'Acción no válida: ' . $action], 400);
     }
 } catch (Exception $e) {
+    error_log("ANUNCIOS.PHP - Exception: " . $e->getMessage());
     jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
 }
 
@@ -68,15 +91,16 @@ function getAnuncio() {
     $anuncio = $stmt->fetch();
     
     if ($anuncio) {
+        // 🔥 ASEGURAR QUE 'activo' sea un entero
+        $anuncio['activo'] = (int)$anuncio['activo'];
+        
         jsonResponse(['success' => true, 'anuncio' => $anuncio]);
     } else {
         jsonResponse(['success' => false, 'message' => 'Anuncio no encontrado'], 404);
     }
 }
 
-function createAnuncio() {
-    $data = json_decode(file_get_contents('php://input'), true);
-    
+function createAnuncio($data) {
     $mensaje = sanitize($data['mensaje'] ?? '');
     $tipo = sanitize($data['tipo'] ?? 'aviso_general');
     $color_fondo = sanitize($data['color_fondo'] ?? '#23906F');
@@ -84,7 +108,12 @@ function createAnuncio() {
     $icono = sanitize($data['icono'] ?? '');
     $velocidad = (int)($data['velocidad'] ?? 30);
     $prioridad = (int)($data['prioridad'] ?? 0);
-    $activo = (int)($data['activo'] ?? 1);
+    
+    // 🔥 CORRECCIÓN CRÍTICA: Convertir explícitamente a entero
+    $activo = isset($data['activo']) ? (int)$data['activo'] : 1;
+    
+    error_log("CREATE - activo recibido: " . var_export($data['activo'], true));
+    error_log("CREATE - activo convertido: " . $activo);
     
     if (empty($mensaje)) {
         jsonResponse(['success' => false, 'message' => 'Mensaje requerido'], 400);
@@ -98,22 +127,33 @@ function createAnuncio() {
     ");
     
     $result = $stmt->execute([
-        $mensaje, $tipo, $color_fondo, $color_texto, 
-        $icono, $velocidad, $prioridad, $activo
+        $mensaje, 
+        $tipo, 
+        $color_fondo, 
+        $color_texto, 
+        $icono, 
+        $velocidad, 
+        $prioridad, 
+        $activo
     ]);
     
     if ($result) {
-        registrarActividad($db, $_SESSION['user_id'], 'Anuncio creado', 'Anuncios', substr($mensaje, 0, 50));
-        jsonResponse(['success' => true, 'message' => 'Anuncio creado exitosamente']);
+        $nuevoId = $db->lastInsertId();
+        registrarActividad($db, $_SESSION['user_id'], 'Anuncio creado', 'Anuncios', "ID: {$nuevoId} - " . substr($mensaje, 0, 50));
+        
+        jsonResponse([
+            'success' => true, 
+            'message' => 'Anuncio creado exitosamente',
+            'id' => $nuevoId
+        ]);
     } else {
         jsonResponse(['success' => false, 'message' => 'Error al crear anuncio'], 500);
     }
 }
 
-function updateAnuncio() {
-    $data = json_decode(file_get_contents('php://input'), true);
-    
+function updateAnuncio($data) {
     $id = (int)($data['id'] ?? 0);
+    
     if ($id == 0) {
         jsonResponse(['success' => false, 'message' => 'ID inválido'], 400);
     }
@@ -125,31 +165,79 @@ function updateAnuncio() {
     $icono = sanitize($data['icono'] ?? '');
     $velocidad = (int)($data['velocidad'] ?? 30);
     $prioridad = (int)($data['prioridad'] ?? 0);
-    $activo = (int)($data['activo'] ?? 1);
+    
+    // 🔥 CORRECCIÓN CRÍTICA: Manejar correctamente el valor booleano/entero
+    // Verificar si la clave existe y convertir a entero
+    $activo = isset($data['activo']) ? (int)$data['activo'] : 0;
+    
+    // Log detallado para debug
+    error_log("UPDATE - ID: " . $id);
+    error_log("UPDATE - activo recibido (raw): " . var_export($data['activo'], true));
+    error_log("UPDATE - activo tipo: " . gettype($data['activo']));
+    error_log("UPDATE - activo convertido: " . $activo);
+    
+    if (empty($mensaje)) {
+        jsonResponse(['success' => false, 'message' => 'Mensaje requerido'], 400);
+    }
     
     $db = getDB();
+    
+    // 🔥 VERIFICAR ESTADO ACTUAL ANTES DE ACTUALIZAR
+    $stmtCheck = $db->prepare("SELECT activo FROM anuncios WHERE id = ?");
+    $stmtCheck->execute([$id]);
+    $estadoActual = $stmtCheck->fetch();
+    error_log("UPDATE - Estado actual en BD: " . var_export($estadoActual['activo'], true));
+    
     $stmt = $db->prepare("
         UPDATE anuncios 
-        SET mensaje = ?, tipo = ?, color_fondo = ?, color_texto = ?, 
-            icono = ?, velocidad = ?, prioridad = ?, activo = ?
+        SET mensaje = ?, 
+            tipo = ?, 
+            color_fondo = ?, 
+            color_texto = ?, 
+            icono = ?, 
+            velocidad = ?, 
+            prioridad = ?, 
+            activo = ?
         WHERE id = ?
     ");
     
     $result = $stmt->execute([
-        $mensaje, $tipo, $color_fondo, $color_texto, 
-        $icono, $velocidad, $prioridad, $activo, $id
+        $mensaje, 
+        $tipo, 
+        $color_fondo, 
+        $color_texto, 
+        $icono, 
+        $velocidad, 
+        $prioridad, 
+        $activo,
+        $id
     ]);
     
+    // 🔥 VERIFICAR QUE SE ACTUALIZÓ CORRECTAMENTE
     if ($result) {
-        registrarActividad($db, $_SESSION['user_id'], 'Anuncio actualizado', 'Anuncios', "ID: {$id}");
-        jsonResponse(['success' => true, 'message' => 'Anuncio actualizado exitosamente']);
+        $stmtVerify = $db->prepare("SELECT activo FROM anuncios WHERE id = ?");
+        $stmtVerify->execute([$id]);
+        $nuevoEstado = $stmtVerify->fetch();
+        error_log("UPDATE - Nuevo estado en BD: " . var_export($nuevoEstado['activo'], true));
+        
+        registrarActividad($db, $_SESSION['user_id'], 'Anuncio actualizado', 'Anuncios', "ID: {$id} - Activo: {$activo}");
+        
+        jsonResponse([
+            'success' => true, 
+            'message' => 'Anuncio actualizado exitosamente',
+            'debug' => [
+                'id' => $id,
+                'activo_enviado' => $activo,
+                'activo_guardado' => (int)$nuevoEstado['activo']
+            ]
+        ]);
     } else {
+        error_log("UPDATE - Error en execute: " . print_r($stmt->errorInfo(), true));
         jsonResponse(['success' => false, 'message' => 'Error al actualizar anuncio'], 500);
     }
 }
 
-function deleteAnuncio() {
-    $data = json_decode(file_get_contents('php://input'), true);
+function deleteAnuncio($data) {
     $id = (int)($data['id'] ?? 0);
     
     if ($id == 0) {

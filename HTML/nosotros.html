@@ -7,9 +7,12 @@
     <title>Nosotros - PetZone</title>
     <link rel="stylesheet" href="../CSS/style.css">
     <link rel="stylesheet" href="../CSS/style-nosotros.css">
+    <script src="../JS/carrito.js" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
 </head>
 
 <body>
@@ -40,7 +43,11 @@
                 </li>
             </ul>
 
-            <button class="navbar__btn">CONTACTO</button>
+            <button class="navbar__btn" onclick="toggleCarrito()">
+                <span class="material-icons">shopping_cart</span>
+                CARRITO
+                <span id="cartCount" class="cart-count">0</span>
+            </button>
         </nav>
     </header>
 
@@ -66,7 +73,8 @@
                 </div>
 
                 <div class="about__visual">
-                    <img src="../IMG/Nosotros/nosotros_header.png" alt="Equipo de PetZone con mascotas" class="aboutheader__img">
+                    <img src="../IMG/Nosotros/nosotros_header.png" alt="Equipo de PetZone con mascotas"
+                        class="aboutheader__img">
 
                     <ul class="about__stats">
                         <li class="about__stat">

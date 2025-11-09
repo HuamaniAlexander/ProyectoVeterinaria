@@ -5,13 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Servicios - PetZone</title>
-    <link rel="stylesheet" href="../CSS/style.css"/>
-    <link rel="stylesheet" href="../CSS/style-servicios.css"/>
+    <link rel="stylesheet" href="../CSS/style.css" />
+    <link rel="stylesheet" href="../CSS/style-servicios.css" />
     <script src="../JS/servicio.js" defer></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Shrikhand&display=swap" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet" />
+    <script src="../JS/carrito.js" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Shrikhand&display=swap" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
 </head>
 
 
@@ -43,7 +47,11 @@
                 </li>
             </ul>
 
-            <button class="navbar__btn">CONTACTO</button>
+            <button class="navbar__btn" onclick="toggleCarrito()">
+                <span class="material-icons">shopping_cart</span>
+                CARRITO
+                <span id="cartCount" class="cart-count">0</span>
+            </button>
         </nav>
     </header>
 
@@ -60,7 +68,7 @@
 
                     <div class="services-hero__title-wrapper">
                         <h1 class="services-hero__title">SERVICIOS</h1>
-                        
+
                         <img src="../IMG/Servicios/Servicios Header.png" class="services-hero__pets">
                     </div>
 
@@ -107,17 +115,17 @@
                                 <h3 class="package__name">La Elegancia Esencial</h3>
                             </div>
                             <ul class="package__features">
-                                
+
                                 <li class="package__feature">
                                     <span class="material-symbols-outlined">star</span>
-                                    <span >Baño Suave con Shampoo Apto para Mascotas</span>
+                                    <span>Baño Suave con Shampoo Apto para Mascotas</span>
                                 </li>
                                 <li class="package__feature">
-                                <span class="material-symbols-outlined">star</span>
+                                    <span class="material-symbols-outlined">star</span>
                                     <span>Corte y Limado de Uñas</span>
                                 </li>
                                 <li class="package__feature">
-                                <span class="material-symbols-outlined">star</span>
+                                    <span class="material-symbols-outlined">star</span>
                                     <span>Limpieza de Oreja</span>
                                 </li>
                                 <li class="package__feature">
@@ -125,15 +133,15 @@
                                     <span>Hidratación de Almohadillas de las Patas</span>
                                 </li>
                                 <li class="package__feature">
-                                <span class="material-symbols-outlined">star</span>
+                                    <span class="material-symbols-outlined">star</span>
                                     <span>Secado con Pelusa y Cepillado</span>
                                 </li>
                                 <li class="package__feature">
-                                <span class="material-symbols-outlined">star</span>
+                                    <span class="material-symbols-outlined">star</span>
                                     <span>Corbata de Moño o Collar Floral de Cortesía</span>
                                 </li>
                             </ul>
-                            
+
                             <button class="package__btn">
                                 <span class="material-symbols-outlined">calendar_month</span>
                                 Reserva Ahora
@@ -152,31 +160,31 @@
                                 <span class="package__price">S/. 80</span>
                                 <h3 class="package__name">El Día de Spa Exclusivo</h3>
                             </div>
-                            
+
                             <ul class="package__features">
-                                
+
                                 <li class="package__feature">
-                                <span class="material-symbols-outlined">star</span>
+                                    <span class="material-symbols-outlined">star</span>
                                     <span>Baño de Acondicionamiento Puro</span>
                                 </li>
                                 <li class="package__feature">
-                                <span class="material-symbols-outlined">star</span>
+                                    <span class="material-symbols-outlined">star</span>
                                     <span>Corte de pelo de Cuerpo Completo Según Raza</span>
                                 </li>
                                 <li class="package__feature">
-                                <span class="material-symbols-outlined">star</span>
+                                    <span class="material-symbols-outlined">star</span>
                                     <span>Recorte, Limado y Pulido de Uñas</span>
                                 </li>
                                 <li class="package__feature">
-                                <span class="material-symbols-outlined">star</span>
+                                    <span class="material-symbols-outlined">star</span>
                                     <span>Limpieza de Oídos y Cepillado de Dientes</span>
                                 </li>
                                 <li class="package__feature">
-                                <span class="material-symbols-outlined">star</span>
+                                    <span class="material-symbols-outlined">star</span>
                                     <span>Aplicación de Bálsamo Calmante para Patas</span>
                                 </li>
                                 <li class="package__feature">
-                                <span class="material-symbols-outlined">star</span>
+                                    <span class="material-symbols-outlined">star</span>
                                     <span>Baño Suave con Shampoo Apto para Mascotas</span>
                                 </li>
                             </ul>
@@ -202,27 +210,27 @@
 
                             <ul class="package__features">
                                 <li class="package__feature">
-                                <span class="material-symbols-outlined">star</span>
+                                    <span class="material-symbols-outlined">star</span>
                                     <span>Incluye lo del Día de Spa Exclusivo</span>
                                 </li>
                                 <li class="package__feature">
-                                <span class="material-symbols-outlined">star</span>
+                                    <span class="material-symbols-outlined">star</span>
                                     <span>Tratamiento Facial de Arándanos para Iluminar y Limpiar</span>
                                 </li>
                                 <li class="package__feature">
-                                <span class="material-symbols-outlined">star</span>
+                                    <span class="material-symbols-outlined">star</span>
                                     <span>Pedicura de Lujo con Esmalte de Uñas</span>
                                 </li>
                                 <li class="package__feature">
-                                <span class="material-symbols-outlined">star</span>
+                                    <span class="material-symbols-outlined">star</span>
                                     <span>Mascarilla Hidratante para Pelaje Sedoso y Suave</span>
                                 </li>
                                 <li class="package__feature">
-                                <span class="material-symbols-outlined">star</span>
+                                    <span class="material-symbols-outlined">star</span>
                                     <span>Secado a Mano para un Acabado Esponjoso</span>
                                 </li>
                                 <li class="package__feature">
-                                <span class="material-symbols-outlined">star</span>
+                                    <span class="material-symbols-outlined">star</span>
                                     <span>Accesorio Personalizado de tu Elección</span>
                                 </li>
                             </ul>
@@ -238,15 +246,15 @@
                 <!-- BOTÓN MOSTRAR MÁS -->
                 <div class="packages__more">
                     <button class="packages__more-btn">
-                                    <span class="material-symbols-outlined">stat_minus_1</span>
-                                    <span class="material-symbols-outlined">stat_minus_1</span>
-                                    <span class="material-symbols-outlined">stat_minus_1</span>
+                        <span class="material-symbols-outlined">stat_minus_1</span>
+                        <span class="material-symbols-outlined">stat_minus_1</span>
+                        <span class="material-symbols-outlined">stat_minus_1</span>
                         </span>
                         <span class="packages__more-text">Mostrar más</span>
                         <span class="packages__more-icon">
-                                    <span class="material-symbols-outlined">stat_minus_1</span>
-                                    <span class="material-symbols-outlined">stat_minus_1</span>
-                                    <span class="material-symbols-outlined">stat_minus_1</span>
+                            <span class="material-symbols-outlined">stat_minus_1</span>
+                            <span class="material-symbols-outlined">stat_minus_1</span>
+                            <span class="material-symbols-outlined">stat_minus_1</span>
                         </span>
                     </button>
                 </div>
@@ -274,4 +282,3 @@
 
 
 </html>
-

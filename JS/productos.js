@@ -1,25 +1,31 @@
-
-// FUNCIONALIDAD PÁGINA PRODUCTOS
+/**
+ * Funcionalidad Página Productos
+ * Archivo: JS/productos.js
+ * Solo maneja filtros y botón "mostrar más"
+ * El carrito se maneja en carrito.js
+ */
 
 // Variables globales
 const filterButtons = document.querySelectorAll('.filters__btn');
 const products = document.querySelectorAll('.product');
 const showMoreBtn = document.getElementById('showMoreBtn');
 
+// ================================================
 // FILTRADO DE PRODUCTOS
+// ================================================
 filterButtons.forEach(button => {
     button.addEventListener('click', function() {
-
+        // Remover clase activa de todos
         filterButtons.forEach(btn => btn.classList.remove('filters__btn--active'));
         
-
+        // Activar botón clickeado
         this.classList.add('filters__btn--active');
         
-
+        // Obtener valor del filtro
         const filterValue = this.getAttribute('data-filter');
         
+        // Filtrar productos
         products.forEach(product => {
-            
             const productCategory = product.getAttribute('data-category');
             
             if (filterValue === 'todos' || productCategory === filterValue) {
@@ -29,16 +35,20 @@ filterButtons.forEach(button => {
             }
         });
         
+        // Resetear productos ocultos y actualizar botón
         resetHiddenProducts();
         updateShowMoreButton();
     });
 });
 
+// ================================================
 // FUNCIONALIDAD "MOSTRAR MÁS"
+// ================================================
 showMoreBtn.addEventListener('click', function() {
     const hiddenProducts = Array.from(document.querySelectorAll('.product--hidden'))
         .filter(product => product.style.display !== 'none');
     
+    // Mostrar los primeros 6 productos ocultos
     hiddenProducts.slice(0, 6).forEach(product => {
         product.classList.remove('product--hidden');
     });
@@ -46,13 +56,13 @@ showMoreBtn.addEventListener('click', function() {
     updateShowMoreButton();
 });
 
+// ================================================
 // FUNCIÓN PARA ACTUALIZAR BOTÓN "MOSTRAR MÁS"
+// ================================================
 function updateShowMoreButton() {
-
     const hiddenProducts = Array.from(document.querySelectorAll('.product--hidden'))
         .filter(product => product.style.display !== 'none');
     
-
     if (hiddenProducts.length === 0) {
         showMoreBtn.classList.add('catalog__more-btn--hidden');
     } else {
@@ -60,16 +70,21 @@ function updateShowMoreButton() {
     }
 }
 
+// ================================================
 // FUNCIÓN PARA REINICIAR PRODUCTOS OCULTOS
+// ================================================
 function resetHiddenProducts() {
     products.forEach((product, index) => {
-        if (index >= 6) { // Los primeros 6 siempre visibles
+        // Los primeros 6 siempre visibles
+        if (index >= 6) {
             product.classList.add('product--hidden');
         }
     });
 }
 
+// ================================================
 // ANIMACIÓN DE ENTRADA DE PRODUCTOS
+// ================================================
 function animateProducts() {
     const visibleProducts = Array.from(products).filter(product => 
         !product.classList.contains('product--hidden') && product.style.display !== 'none'
@@ -89,31 +104,13 @@ function animateProducts() {
     });
 }
 
+// ================================================
 // INICIALIZACIÓN
+// ================================================
 document.addEventListener('DOMContentLoaded', function() {
     updateShowMoreButton();
-    
     animateProducts();
-});
-
-// FUNCIONALIDAD BOTONES "COMPRAR"
-const buyButtons = document.querySelectorAll('.product__btn');
-
-buyButtons.forEach(button => {
-    button.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        const productCard = this.closest('.product');
-        const productName = productCard.querySelector('.product__name').textContent;
-        const productPrice = productCard.querySelector('.product__price').textContent;
-        
-        this.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-            this.style.transform = 'scale(1)';
-        }, 150);
-        
-        console.log(`Producto agregado: ${productName} - ${productPrice}`);
-
-        alert(`¡${productName} agregado al carrito!`);
-    });
+    
+    console.log('✅ Productos.js cargado correctamente');
+    console.log('📦 Total de productos:', products.length);
 });

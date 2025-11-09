@@ -7,6 +7,7 @@
     <title>Reserva - PetZone</title>
     <link rel="stylesheet" href="../CSS/style.css">
     <link rel="stylesheet" href="../CSS/style-reserva.css">
+    <script src="../JS/carrito.js" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
 </head>
@@ -39,7 +40,11 @@
                 </li>
             </ul>
 
-            <button class="navbar__btn">CONTACTO</button>
+            <button class="navbar__btn" onclick="toggleCarrito()">
+                <span class="material-icons">shopping_cart</span>
+                CARRITO
+                <span id="cartCount" class="cart-count">0</span>
+            </button>
         </nav>
     </header>
 
@@ -52,9 +57,10 @@
                     <h1 class="reserva__titulo">AGENDA TU</h1>
                     <h2 class="reserva__titulo">CITA EN</h2>
                     <h2 class="reserva__titulo--destacado">SEGUNDOS</h2>
-                    
+
                     <div class="reserva__ilustracion">
-                        <img src="../IMG/Reserva/Reserva_header.png" alt="Veterinaria con mascota" class="reserva__imagen">
+                        <img src="../IMG/Reserva/Reserva_header.png" alt="Veterinaria con mascota"
+                            class="reserva__imagen">
                     </div>
                 </div>
 
@@ -66,42 +72,23 @@
 
                         <form class="formulario" id="formularioReserva">
                             <div class="formulario__grupo">
-                                <input 
-                                    type="text" 
-                                    id="nombre" 
-                                    name="nombre" 
-                                    class="formulario__input" 
-                                    placeholder="Nombre"
-                                    required>
+                                <input type="text" id="nombre" name="nombre" class="formulario__input"
+                                    placeholder="Nombre" required>
                             </div>
 
                             <div class="formulario__grupo">
-                                <input 
-                                    type="email" 
-                                    id="correo" 
-                                    name="correo" 
-                                    class="formulario__input" 
-                                    placeholder="Correo electrónico"
-                                    required>
+                                <input type="email" id="correo" name="correo" class="formulario__input"
+                                    placeholder="Correo electrónico" required>
                             </div>
 
                             <div class="formulario__grupo">
-                                <input 
-                                    type="tel" 
-                                    id="telefono" 
-                                    name="telefono" 
-                                    class="formulario__input" 
-                                    placeholder="Número de celular"
-                                    required>
+                                <input type="tel" id="telefono" name="telefono" class="formulario__input"
+                                    placeholder="Número de celular" required>
                             </div>
 
                             <div class="formulario__grupo">
-                                <select 
-                                    id="servicio" 
-                                    name="servicio"
-                                    aria-label="Selecciona un servicio"
-                                    class="formulario__select"
-                                    required>
+                                <select id="servicio" name="servicio" aria-label="Selecciona un servicio"
+                                    class="formulario__select" required>
                                     <option value="" disabled selected>Servicio</option>
                                     <option value="consulta-veterinaria">Consulta Veterinaria</option>
                                     <option value="peluqueria">Peluquería y Estética</option>
@@ -113,11 +100,7 @@
                             </div>
 
                             <div class="formulario__grupo">
-                                <textarea 
-                                    id="mensaje" 
-                                    name="mensaje" 
-                                    class="formulario__textarea" 
-                                    placeholder="Mensaje"
+                                <textarea id="mensaje" name="mensaje" class="formulario__textarea" placeholder="Mensaje"
                                     rows="4"></textarea>
                             </div>
 
@@ -127,7 +110,7 @@
                 </div>
             </div>
         </section>
-        
+
         <!-- SECCIÓN INFORMACIÓN DE CONTACTO -->
         <section class="contacto">
             <div class="contacto__contenedor1">
@@ -137,13 +120,13 @@
                 <div class="contacto__grid">
                     <div class="contacto__tarjeta">
                         <div class="contacto__icono-contenedor-master">
-                            <div class="contacto__icono-contenedor">  
+                            <div class="contacto__icono-contenedor">
                                 <span class="material-icons contacto__icono">phone</span>
                             </div>
                         </div>
                         <div class="contacto__texto">
                             <h4 class="contacto__subtitulo">Número de teléfono</h4>
-                            <p class="contacto__dato">935 873 268</p>  
+                            <p class="contacto__dato">935 873 268</p>
                         </div>
                     </div>
 
@@ -153,10 +136,10 @@
                                 <span class="material-icons contacto__icono">email</span>
                             </div>
                         </div>
-                        <div class="contacto__texto"> 
+                        <div class="contacto__texto">
                             <h4 class="contacto__subtitulo">Correo Electrónico</h4>
                             <p class="contacto__dato">PetZone@login@gmail.com</p>
-                        </div>       
+                        </div>
                     </div>
 
                     <div class="contacto__tarjeta">
@@ -164,11 +147,12 @@
                             <div class="contacto__icono-contenedor">
                                 <span class="material-icons contacto__icono">location_on</span>
                             </div>
-                        </div>    
-                        <div class="contacto__texto"> 
+                        </div>
+                        <div class="contacto__texto">
                             <h4 class="contacto__subtitulo">Dirección</h4>
-                            <p class="contacto__dato">Panamericana Norte, Av. Alfredo Mendiola 6377, Los Olivos 15306</p>
-                        </div>      
+                            <p class="contacto__dato">Panamericana Norte, Av. Alfredo Mendiola 6377, Los Olivos 15306
+                            </p>
+                        </div>
                     </div>
 
                     <div class="contacto__tarjeta">
@@ -176,22 +160,25 @@
                             <div class="contacto__icono-contenedor">
                                 <span class="material-icons contacto__icono">schedule</span>
                             </div>
-                        </div>    
-                        <div class="contacto__texto"> 
+                        </div>
+                        <div class="contacto__texto">
                             <h4 class="contacto__subtitulo">Horarios de Atención</h4>
                             <div class="contacto__horarios">
                                 <p class="contacto__horario"><strong>LUNES a VIERNES:</strong> 8:00 AM - 7:00 PM</p>
                                 <p class="contacto__horario"><strong>SÁBADOS:</strong> 8:00 AM - 5:00 PM</p>
-                                <p class="contacto__horario"><strong>DOMINGOS:</strong> 9:00 AM - 2:00 PM (Solo consultas veterinarias - No servicios de spa)</p>
-                                <p class="contacto__horario"><strong>EMERGENCIAS:</strong> 24/7 - Llamar antes de llegar (Recargo por atención nocturna y feriados)</p>
+                                <p class="contacto__horario"><strong>DOMINGOS:</strong> 9:00 AM - 2:00 PM (Solo
+                                    consultas veterinarias - No servicios de spa)</p>
+                                <p class="contacto__horario"><strong>EMERGENCIAS:</strong> 24/7 - Llamar antes de llegar
+                                    (Recargo por atención nocturna y feriados)</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="contacto__contenedor2">
-                    <img class="img__contacto" src="../IMG/Reserva/Vet Encuentranos Facilmente.png" alt="Imagen de contacto veterinaria">
-                </div>
+                <img class="img__contacto" src="../IMG/Reserva/Vet Encuentranos Facilmente.png"
+                    alt="Imagen de contacto veterinaria">
+            </div>
         </section>
 
         <!-- SECCIÓN POR QUÉ ELEGIRNOS -->
@@ -221,7 +208,8 @@
 
                     <div class="elegirnos__tarjeta">
                         <p class="elegirnos__texto">
-                            <strong>Compromiso real:</strong> Si no quedas satisfecho, trabajamos hasta que tu mascota reciba exactamente lo que necesita
+                            <strong>Compromiso real:</strong> Si no quedas satisfecho, trabajamos hasta que tu mascota
+                            reciba exactamente lo que necesita
                         </p>
                     </div>
 
@@ -260,6 +248,3 @@
 
 
 </html>
-
-
-
