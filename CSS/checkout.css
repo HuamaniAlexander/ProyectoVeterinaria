@@ -268,6 +268,8 @@
             z-index: 10000;
             align-items: center;
             justify-content: center;
+            overflow-y: auto;
+            padding: 2rem;
         }
 
         .qr-modal.active {
@@ -282,6 +284,8 @@
             max-width: 500px;
             width: 90%;
             text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .qr-code {
@@ -294,6 +298,35 @@
             align-items: center;
             justify-content: center;
             font-size: 4rem;
+        }
+
+        /* Card Form Styles */
+        #cardForm input {
+            width: 100%;
+            padding: 0.9rem;
+            border: 2px solid var(--gray-border);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        #cardForm input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(35, 144, 111, 0.1);
+        }
+
+        #cardForm input.error {
+            border-color: var(--danger);
+        }
+
+        #cardBrand {
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        #cardBrand.active {
+            display: block;
         }
 
         /* ORDER SUMMARY */

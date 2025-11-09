@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - PetZone</title>
     <link href="https://fonts.googleapis.com/css2?family=Material+Icons&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/checkout.css">
+    <link rel="stylesheet" href="../CSS/checkout.css">
 </head>
 <body>
     <!-- HEADER -->
@@ -143,8 +143,8 @@
                     <span class="material-icons">arrow_back</span>
                     Volver
                 </button>
-                <button type="button" class="btn btn-primary" onclick="goToStep3()">
-                    Ver Resumen
+                <button type="button" class="btn btn-primary" onclick="handlePaymentStep()">
+                    Continuar
                     <span class="material-icons">arrow_forward</span>
                 </button>
             </div>
@@ -170,6 +170,45 @@
                 </button>
             </div>
         </section>
+    </div>
+
+    <!-- MODAL DE PAGO CON TARJETA -->
+    <div id="cardModal" class="qr-modal">
+        <div class="qr-content">
+            <h2>💳 Pagar con Tarjeta</h2>
+            <form id="cardForm" style="margin-top: 2rem;">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Número de Tarjeta <span class="required">*</span></label>
+                    <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                    <span class="error-message" id="error-cardNumber"></span>
+                    <div id="cardBrand" style="margin-top: 0.5rem; font-weight: 600; color: var(--primary);"></div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Fecha Exp. <span class="required">*</span></label>
+                        <input type="text" id="cardExpiry" placeholder="MM/AA" maxlength="5" required>
+                        <span class="error-message" id="error-cardExpiry"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>CVV <span class="required">*</span></label>
+                        <input type="text" id="cardCVV" placeholder="123" maxlength="4" required>
+                        <span class="error-message" id="error-cardCVV"></span>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label>Nombre del Titular <span class="required">*</span></label>
+                    <input type="text" id="cardHolder" placeholder="NOMBRE APELLIDO" required>
+                    <span class="error-message" id="error-cardHolder"></span>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeCardModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="material-icons">credit_card</span>
+                        Validar y Continuar
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- QR MODAL -->
@@ -207,375 +246,6 @@
     <!-- TOAST -->
     <div id="toast" class="toast"></div>
 
-    <script>
-        // DATOS DE MUESTRA (simular carrito)
-        const cartItems = [
-            { id: 1, nombre: 'Comida Premium para Perros', cantidad: 2, precio: 45.00, imagen: '🐕' },
-            { id: 2, nombre: 'Juguete Interactivo', cantidad: 1, precio: 25.00, imagen: '🎾' }
-        ];
-
-        // DISTRITOS POR DEPARTAMENTO
-        const distritosData = {
-            'Lima': ['Lima', 'Miraflores', 'San Isidro', 'Surco', 'La Molina', 'San Borja', 'Jesús María', 'Lince', 'San Miguel', 'Pueblo Libre', 'Magdalena', 'Los Olivos', 'San Martín de Porres', 'Independencia', 'Comas', 'Ate', 'Santa Anita', 'La Victoria', 'San Juan de Lurigancho', 'Villa El Salvador'],
-            'Arequipa': ['Arequipa', 'Cayma', 'Cerro Colorado', 'Mariano Melgar', 'Miraflores', 'Paucarpata', 'Sachaca', 'Yanahuara', 'José Luis Bustamante y Rivero'],
-            'Cusco': ['Cusco', 'Wanchaq', 'San Sebastián', 'San Jerónimo', 'Santiago'],
-            'La Libertad': ['Trujillo', 'Víctor Larco Herrera', 'Huanchaco', 'Moche', 'La Esperanza']
-        };
-
-        // STEP MANAGEMENT
-        let currentStep = 1;
-        const formData = {};
-
-        function updateStepper(step) {
-            document.querySelectorAll('.step').forEach((el, idx) => {
-                const stepNum = idx + 1;
-                el.classList.remove('active', 'completed');
-                
-                if (stepNum === step) {
-                    el.classList.add('active');
-                } else if (stepNum < step) {
-                    el.classList.add('completed');
-                }
-            });
-        }
-
-        function showSection(step) {
-            document.querySelectorAll('.checkout-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            document.getElementById(`step${step}`).classList.add('active');
-            currentStep = step;
-            updateStepper(step);
-            window.scrollTo(0, 0);
-        }
-
-        // VALIDACIONES
-        function validateNombre(nombre) {
-            if (nombre.trim().length < 3) {
-                return 'El nombre debe tener al menos 3 caracteres';
-            }
-            if (!/^[a-záéíóúñA-ZÁÉÍÓÚÑ\s]+$/.test(nombre)) {
-                return 'Solo se permiten letras y espacios';
-            }
-            return null;
-        }
-
-        function validateTelefono(telefono) {
-            if (!/^9\d{8}$/.test(telefono)) {
-                return 'Debe ser un celular válido (9 dígitos, empieza con 9)';
-            }
-            return null;
-        }
-
-        function validateEmail(email) {
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                return 'Correo electrónico inválido';
-            }
-            return null;
-        }
-
-        function showError(fieldId, message) {
-            const field = document.getElementById(fieldId);
-            const errorEl = document.getElementById(`error-${fieldId}`);
-            field.classList.add('error');
-            errorEl.textContent = message;
-            errorEl.classList.add('show');
-        }
-
-        function clearError(fieldId) {
-            const field = document.getElementById(fieldId);
-            const errorEl = document.getElementById(`error-${fieldId}`);
-            field.classList.remove('error');
-            errorEl.classList.remove('show');
-        }
-
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            toast.className = `toast ${type} show`;
-            toast.innerHTML = `
-                <span class="material-icons">${type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'warning'}</span>
-                <span>${message}</span>
-            `;
-            setTimeout(() => toast.classList.remove('show'), 4000);
-        }
-
-        // STEP 1: VALIDAR Y AVANZAR
-        function goToStep2() {
-            const nombre = document.getElementById('nombre').value.trim();
-            const telefono = document.getElementById('telefono').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const departamento = document.getElementById('departamento').value;
-            const distrito = document.getElementById('distrito').value;
-            const direccion = document.getElementById('direccion').value.trim();
-
-            let isValid = true;
-
-            // Limpiar errores
-            ['nombre', 'telefono', 'email', 'departamento', 'distrito', 'direccion'].forEach(clearError);
-
-            // Validar nombre
-            const nombreError = validateNombre(nombre);
-            if (nombreError) {
-                showError('nombre', nombreError);
-                isValid = false;
-            }
-
-            // Validar teléfono
-            const telefonoError = validateTelefono(telefono);
-            if (telefonoError) {
-                showError('telefono', telefonoError);
-                isValid = false;
-            }
-
-            // Validar email
-            const emailError = validateEmail(email);
-            if (emailError) {
-                showError('email', emailError);
-                isValid = false;
-            }
-
-            // Validar departamento
-            if (!departamento) {
-                showError('departamento', 'Selecciona un departamento');
-                isValid = false;
-            }
-
-            // Validar distrito
-            if (!distrito) {
-                showError('distrito', 'Selecciona un distrito');
-                isValid = false;
-            }
-
-            // Validar dirección
-            if (direccion.length < 10) {
-                showError('direccion', 'La dirección debe ser más detallada (mín. 10 caracteres)');
-                isValid = false;
-            }
-
-            if (isValid) {
-                formData.nombre = nombre;
-                formData.telefono = telefono;
-                formData.email = email;
-                formData.departamento = departamento;
-                formData.distrito = distrito;
-                formData.direccion = direccion;
-                showSection(2);
-                showToast('Información guardada correctamente', 'success');
-            } else {
-                showToast('Por favor corrige los errores en el formulario', 'error');
-            }
-        }
-
-        function goToStep1() {
-            showSection(1);
-        }
-
-        // STEP 2: VALIDAR Y AVANZAR
-        function goToStep3() {
-            const metodoPago = document.querySelector('input[name="metodo_pago"]:checked');
-            
-            if (!metodoPago) {
-                showToast('Selecciona un método de pago', 'warning');
-                return;
-            }
-
-            formData.metodo_pago = metodoPago.value;
-            generateSummary();
-            showSection(3);
-        }
-
-        // STEP 3: GENERAR RESUMEN
-        function generateSummary() {
-            const subtotal = cartItems.reduce((sum, item) => sum + (item.cantidad * item.precio), 0);
-            const envio = subtotal >= 100 ? 0 : 10;
-            const total = subtotal + envio;
-
-                            const summaryHTML = `
-                <div style="background: var(--gray-light); padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
-                    <h3 style="margin-bottom: 1rem; color: var(--text);">📋 Datos de Envío</h3>
-                    <p><strong>Nombre:</strong> ${formData.nombre}</p>
-                    <p><strong>Teléfono:</strong> ${formData.telefono}</p>
-                    <p><strong>Email:</strong> ${formData.email}</p>
-                    <p><strong>Ubicación:</strong> ${formData.distrito}, ${formData.departamento}</p>
-                    <p><strong>Dirección:</strong> ${formData.direccion}</p>
-                    <p style="margin-top: 1rem;"><strong>💳 Método de Pago:</strong> ${getPaymentMethodName(formData.metodo_pago)}</p>
-                </div>
-
-                <h3 style="margin-bottom: 1rem;">🛒 Productos</h3>
-                <div class="summary-items">
-                    ${cartItems.map(item => `
-                        <div class="summary-item">
-                            <div style="font-size: 2rem;">${item.imagen}</div>
-                            <div class="summary-item-info">
-                                <div style="font-weight: 600; margin-bottom: 0.3rem;">${item.nombre}</div>
-                                <div style="color: var(--text-light); font-size: 0.9rem;">
-                                    Cantidad: ${item.cantidad} x S/. ${item.precio.toFixed(2)}
-                                </div>
-                            </div>
-                            <div style="font-weight: 700; color: var(--primary);">
-                                S/. ${(item.cantidad * item.precio).toFixed(2)}
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-
-                <div class="summary-totals">
-                    <div class="total-row">
-                        <span>Subtotal:</span>
-                        <span>S/. ${subtotal.toFixed(2)}</span>
-                    </div>
-                    <div class="total-row">
-                        <span>Envío:</span>
-                        <span>${envio === 0 ? '<span style="color: var(--success); font-weight: 700;">GRATIS</span>' : 'S/. ' + envio.toFixed(2)}</span>
-                    </div>
-                    <div class="total-row total-final">
-                        <span>Total a Pagar:</span>
-                        <span>S/. ${total.toFixed(2)}</span>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('summaryContent').innerHTML = summaryHTML;
-            formData.total = total;
-        }
-
-        function getPaymentMethodName(method) {
-            const names = {
-                'yape': '📱 Yape',
-                'plin': '📱 Plin',
-                'tarjeta': '💳 Tarjeta de Crédito/Débito',
-                'efectivo': '💵 Efectivo (Contra entrega)'
-            };
-            return names[method] || method;
-        }
-
-        // REALIZAR PEDIDO
-        function placeOrder() {
-            const metodo = formData.metodo_pago;
-
-            if (metodo === 'yape' || metodo === 'plin') {
-                showQRModal(metodo);
-            } else {
-                processOrder();
-            }
-        }
-
-        function showQRModal(metodo) {
-            const modal = document.getElementById('qrModal');
-            const title = document.getElementById('qrTitle');
-            const amount = document.getElementById('qrAmount');
-
-            title.textContent = metodo === 'yape' ? 'Pagar con Yape' : 'Pagar con Plin';
-            amount.textContent = `S/. ${formData.total.toFixed(2)}`;
-            
-            document.getElementById('qrConfirmation').checked = false;
-            modal.classList.add('active');
-        }
-
-        function closeQRModal() {
-            document.getElementById('qrModal').classList.remove('active');
-        }
-
-        function confirmQRPayment() {
-            const confirmed = document.getElementById('qrConfirmation').checked;
-
-            if (!confirmed) {
-                showToast('Por favor confirma que realizaste el pago', 'warning');
-                return;
-            }
-
-            closeQRModal();
-            processOrder();
-        }
-
-        function processOrder() {
-            // Simular procesamiento
-            showToast('Procesando pedido...', 'success');
-
-            setTimeout(() => {
-                const orderCode = 'PZ-' + new Date().getFullYear() + 
-                                  (new Date().getMonth() + 1).toString().padStart(2, '0') + 
-                                  new Date().getDate().toString().padStart(2, '0') + '-' + 
-                                  Math.floor(Math.random() * 9999).toString().padStart(4, '0');
-
-                document.getElementById('orderCode').textContent = orderCode;
-                document.getElementById('successModal').classList.add('active');
-
-                // Aquí normalmente enviarías los datos al servidor
-                console.log('Datos del pedido:', {
-                    ...formData,
-                    items: cartItems,
-                    codigo: orderCode,
-                    fecha: new Date().toISOString()
-                });
-            }, 1500);
-        }
-
-        function closeSuccessModal() {
-            document.getElementById('successModal').classList.remove('active');
-            // Redirigir a página principal o pedidos
-            showToast('¡Gracias por tu compra!', 'success');
-            
-            // Resetear formulario
-            setTimeout(() => {
-                location.reload();
-            }, 1000);
-        }
-
-        // CARGAR DISTRITOS DINÁMICAMENTE
-        document.getElementById('departamento').addEventListener('change', function() {
-            const departamento = this.value;
-            const distritoSelect = document.getElementById('distrito');
-            
-            distritoSelect.disabled = !departamento;
-            distritoSelect.innerHTML = '<option value="">Seleccionar distrito...</option>';
-
-            if (departamento && distritosData[departamento]) {
-                distritosData[departamento].forEach(distrito => {
-                    const option = document.createElement('option');
-                    option.value = distrito;
-                    option.textContent = distrito;
-                    distritoSelect.appendChild(option);
-                });
-            }
-
-            clearError('departamento');
-        });
-
-        // VALIDACIÓN EN TIEMPO REAL
-        document.getElementById('nombre').addEventListener('input', function() {
-            this.value = this.value.replace(/[^a-záéíóúñA-ZÁÉÍÓÚÑ\s]/g, '');
-            clearError('nombre');
-        });
-
-        document.getElementById('telefono').addEventListener('input', function() {
-            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 9);
-            clearError('telefono');
-        });
-
-        document.getElementById('email').addEventListener('blur', function() {
-            clearError('email');
-        });
-
-        document.getElementById('distrito').addEventListener('change', function() {
-            clearError('distrito');
-        });
-
-        document.getElementById('direccion').addEventListener('input', function() {
-            clearError('direccion');
-        });
-
-        // PREVENIR ENVÍO CON ENTER (excepto textarea)
-        document.getElementById('shippingForm').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
-                e.preventDefault();
-            }
-        });
-
-        // INICIALIZACIÓN
-        console.log('✅ Sistema de Checkout Cargado');
-        console.log('📦 Items en carrito:', cartItems.length);
-        console.log('💰 Total:', cartItems.reduce((sum, item) => sum + (item.cantidad * item.precio), 0).toFixed(2));
-    </script>
+    <script src="../JS/checkout.js"></script>
 </body>
 </html>
