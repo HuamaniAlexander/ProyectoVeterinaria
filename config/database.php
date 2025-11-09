@@ -4,6 +4,11 @@
  * Conexión a MySQL usando PDO
  */
 
+// ⚠️ IMPORTANTE: Configurar PHP para evitar salidas HTML
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
 class Database {
     private $host = 'localhost';
     private $db_name = 'petzone_db';
@@ -31,10 +36,12 @@ class Database {
             );
         } catch(PDOException $e) {
             error_log("Error de conexión: " . $e->getMessage());
-            die(json_encode([
+            http_response_code(500);
+            echo json_encode([
                 'success' => false,
                 'message' => 'Error de conexión a la base de datos'
-            ]));
+            ]);
+            exit;
         }
         
         return $this->conn;
@@ -60,9 +67,14 @@ function getDB() {
  * Función para responder JSON
  */
 function jsonResponse($data, $statusCode = 200) {
+    // Limpiar cualquier salida previa
+    if (ob_get_length()) {
+        ob_clean();
+    }
+    
     http_response_code($statusCode);
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($data, JSON_UNESCAPED_UNICODE);
+    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     exit;
 }
 
@@ -70,6 +82,9 @@ function jsonResponse($data, $statusCode = 200) {
  * Función para sanitizar datos
  */
 function sanitize($data) {
+    if (is_array($data)) {
+        return array_map('sanitize', $data);
+    }
     $data = trim($data);
     $data = stripslashes($data);
     $data = htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
@@ -77,19 +92,16 @@ function sanitize($data) {
 }
 
 /**
- * Iniciar sesión si no está iniciada
- */
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-/**
  * Generar o obtener session_id para carrito
  */
 function getCartSessionId() {
+    // Iniciar sesión solo si no está iniciada
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
     if (!isset($_SESSION['cart_session_id'])) {
         $_SESSION['cart_session_id'] = session_id();
     }
     return $_SESSION['cart_session_id'];
 }
-?>
