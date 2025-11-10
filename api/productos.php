@@ -252,7 +252,7 @@ function uploadImagen($file, $carpeta) {
     $rutaCompleta = $rutaDestino . $nombreArchivo;
     
     if (move_uploaded_file($file['tmp_name'], $rutaCompleta)) {
-        return "IMG/{$carpeta}/{$nombreArchivo}";
+        return "../IMG/{$carpeta}/{$nombreArchivo}";
     } else {
         throw new Exception('Error al subir imagen');
     }

@@ -10,11 +10,18 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
 class Database {
-    private $host = 'localhost';
+    /*private $host = 'localhost';
     private $db_name = 'petzone_db';
     private $username = 'root';  // Cambiar según tu configuración
     private $password = '';      // Cambiar según tu configuración
+    private $conn;*/
+    
+    private $host = 'db-us.supercores.host:3306';
+    private $db_name = 's2941_Petzone';
+    private $username = 'u2941_3ckbdFSUsl';  // Cambiar según tu configuración
+    private $password = 'S6L^xcK1QWOv2=NP2+YR5+60';      // Cambiar según tu configuración
     private $conn;
+
     
     /**
      * Obtener conexión a la base de datos
