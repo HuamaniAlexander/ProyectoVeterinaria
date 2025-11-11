@@ -3,7 +3,7 @@
  * Carga productos desde la base de datos
  */
 
-const API_URL = 'https://petzone.byethost18.com/api/productos.php';
+const API_URL = '../api/productos.php';
 const PRODUCTS_PER_PAGE = 6;
 let allProducts = [];
 let filteredProducts = [];
