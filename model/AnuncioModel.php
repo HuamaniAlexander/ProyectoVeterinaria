@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/BaseModel.php';
+require_once __DIR__ . '/../config/conexion.php';
 
 class AnuncioModel extends BaseModel {
     protected $table = 'anuncios';

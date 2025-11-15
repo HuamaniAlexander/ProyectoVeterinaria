@@ -1,14 +1,19 @@
 <?php
-require_once __DIR__ . '/BaseModel.php';
+require_once __DIR__ . '/../config/conexion.php';
 
-class ProductoModel extends BaseModel {
-    protected $table = 'productos';
+class ProductoModel {
+    private $db;
+    private $table = 'productos';
+    
+    public function __construct() {
+        $this->db = getDB();
+    }
     
     public function getAllWithCategory($categoria = '', $busqueda = '') {
         $sql = "SELECT p.*, c.nombre as categoria_nombre, c.slug as categoria_slug 
-                FROM productos p 
+                FROM {$this->table} p 
                 INNER JOIN categorias c ON p.categoria_id = c.id 
-                WHERE 1=1";
+                WHERE p.activo = 1";
         $params = [];
         
         if (!empty($categoria)) {
@@ -30,21 +35,6 @@ class ProductoModel extends BaseModel {
         return $stmt->fetchAll();
     }
     
-    public function updateStock($productId, $quantity) {
-        $stmt = $this->db->prepare("
-            UPDATE productos 
-            SET stock = stock - ?, ventas = ventas + ? 
-            WHERE id = ?
-        ");
-        return $stmt->execute([$quantity, $quantity, $productId]);
-    }
-    
-    public function incrementViews($productId) {
-        $stmt = $this->db->prepare("UPDATE productos SET visitas = visitas + 1 WHERE id = ?");
-        return $stmt->execute([$productId]);
-    }
-    
-    // Agregar métodos básicos si BaseModel no los tiene
     public function getById($id) {
         $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE id = ?");
         $stmt->execute([$id]);
@@ -77,5 +67,14 @@ class ProductoModel extends BaseModel {
     public function delete($id) {
         $stmt = $this->db->prepare("DELETE FROM {$this->table} WHERE id = ?");
         return $stmt->execute([$id]);
+    }
+    
+    public function updateStock($productId, $quantity) {
+        $stmt = $this->db->prepare("
+            UPDATE {$this->table} 
+            SET stock = stock - ?, ventas = ventas + ? 
+            WHERE id = ?
+        ");
+        return $stmt->execute([$quantity, $quantity, $productId]);
     }
 }

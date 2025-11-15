@@ -1,10 +1,10 @@
 <?php
-require_once __DIR__ . '/BaseController.php';
+require_once __DIR__ . '/../config/conexion.php';
 require_once __DIR__ . '/../model/CarritoModel.php';
 require_once __DIR__ . '/../model/ProductoModel.php';
 
-class CarritoController extends BaseController {
-    protected $requireAuth = false;
+class CarritoController {
+    private $model;
     private $productoModel;
     
     public function __construct() {
@@ -25,8 +25,7 @@ class CarritoController extends BaseController {
     }
     
     public function add() {
-        try {
-            $data = $this->getRequestData();
+            $data = json_decode(file_get_contents('php://input'), true);
             
             $productoId = (int)($data['producto_id'] ?? 0);
             $cantidad = (int)($data['cantidad'] ?? 1);
