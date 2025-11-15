@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../config/conexion.php';
 require_once __DIR__ . '/../model/CarritoModel.php';
 require_once __DIR__ . '/../model/ProductoModel.php';
+require_once __DIR__ . '/../model/BaseModel.php'; // ✅ AGREGAR ESTA LÍNEA
 
 class CarritoController {
     private $model;
@@ -25,6 +26,7 @@ class CarritoController {
     }
     
     public function add() {
+        try { // ✅ FALTABA ESTE TRY
             $data = json_decode(file_get_contents('php://input'), true);
             
             $productoId = (int)($data['producto_id'] ?? 0);

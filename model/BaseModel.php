@@ -7,6 +7,15 @@ abstract class BaseModel {
         $this->db = getDB();
     }
     
+    // ✅ AGREGAR ESTE MÉTODO
+    protected function getRequestData() {
+        $data = json_decode(file_get_contents('php://input'), true);
+        if (!$data) {
+            $data = $_POST;
+        }
+        return $data ?? [];
+    }
+    
     public function getAll($conditions = [], $orderBy = 'id DESC', $limit = null) {
         $sql = "SELECT * FROM {$this->table} WHERE 1=1";
         $params = [];

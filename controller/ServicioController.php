@@ -1,12 +1,18 @@
 <?php
 require_once __DIR__ . '/BaseController.php';
 require_once __DIR__ . '/../model/ServicioModel.php';
+require_once __DIR__ . '/../model/BaseModel.php';
 
 class ServicioController extends BaseController {
     protected $requireAuth = false;
     
     public function __construct() {
         $this->model = new ServicioModel();
+    }
+    
+    // ✅ VERIFICAR QUE ESTE MÉTODO EXISTA
+    public function list() {
+        $this->index(); // Alias para compatibilidad
     }
     
     public function index() {

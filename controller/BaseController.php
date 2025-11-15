@@ -21,7 +21,28 @@ abstract class BaseController {
         if (!$data) {
             $data = $_POST;
         }
-        return $data;
+        return $data ?? [];
+    }
+    
+    // ✅ AGREGAR ESTE MÉTODO
+    protected function registrarActividad($accion, $modulo, $detalle = null) {
+        if (!isset($_SESSION['user_id'])) return;
+        
+        try {
+            $stmt = $this->model->db->prepare("
+                INSERT INTO actividad_admin (usuario_id, accion, modulo, detalle, ip_address) 
+                VALUES (?, ?, ?, ?, ?)
+            ");
+            $stmt->execute([
+                $_SESSION['user_id'],
+                $accion,
+                $modulo,
+                $detalle,
+                $_SERVER['REMOTE_ADDR'] ?? null
+            ]);
+        } catch (Exception $e) {
+            error_log("Error al registrar actividad: " . $e->getMessage());
+        }
     }
     
     protected function handleImageUpload($file, $folder) {

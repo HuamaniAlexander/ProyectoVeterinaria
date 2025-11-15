@@ -14,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../model/BaseModel.php';
 
 $recurso = $_GET['recurso'] ?? '';
 $action = $_GET['action'] ?? 'index';

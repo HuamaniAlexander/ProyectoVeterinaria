@@ -1,13 +1,9 @@
 <?php
 require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/BaseModel.php'; // ✅ AGREGAR ESTA LÍNEA
 
-class ProductoModel {
-    private $db;
-    private $table = 'productos';
-    
-    public function __construct() {
-        $this->db = getDB();
-    }
+class ProductoModel extends BaseModel { // ✅ CAMBIAR ESTA LÍNEA
+    protected $table = 'productos'; // ✅ AGREGAR ESTA LÍNEA
     
     public function getAllWithCategory($categoria = '', $busqueda = '') {
         $sql = "SELECT p.*, c.nombre as categoria_nombre, c.slug as categoria_slug 
