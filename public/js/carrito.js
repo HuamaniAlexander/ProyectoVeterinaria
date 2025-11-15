@@ -184,7 +184,7 @@ async function loadCartItems() {
         if (data.success && data.items.length > 0) { 
             cartItemsDiv.innerHTML = data.items.map(item => `
                 <div class="cart-item" data-id="${item.producto_id}">
-                    <img src="${isIndexPage ? item.imagen : '../' + item.imagen}" alt="${item.nombre}">
+                    <img src="${isIndexPage ? item.imagen : '' + item.imagen}" alt="${item.nombre}">
                     <div class="cart-item-info">
                         <h3>${item.nombre}</h3>
                         <p class="cart-item-price">S/. ${parseFloat(item.precio_unitario).toFixed(2)} c/u</p>

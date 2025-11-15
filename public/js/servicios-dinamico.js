@@ -3,8 +3,9 @@
  * Archivo: JS/servicios-dinamico.js
  */
 
-const SERVICIOS_API = '../routes/router.php?recurso=servicios'; // ✅ Cambiado
-const RESERVAS_API = '../routes/router.php?recurso=reservas'; 
+// ✅ USAR & en lugar de ? para el segundo parámetro
+const SERVICIOS_API = '../routes/router.php?recurso=servicios';
+const RESERVAS_API = '../routes/router.php?recurso=reservas';
 
 let allServicios = [];
 let currentServicio = null;
@@ -13,6 +14,8 @@ let currentServicio = null;
 // INICIALIZACIÓN
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 Iniciando carga de servicios...');
+    console.log('📍 API URL:', SERVICIOS_API);
     loadServiciosFromDB();
     setupReservaModal();
 });
@@ -24,21 +27,45 @@ async function loadServiciosFromDB() {
     try {
         showLoading();
         
-        const response = await fetch(`${SERVICIOS_API}?action=list`);
+        // ✅ CAMBIAR ? por & aquí
+        const url = `${SERVICIOS_API}&action=list`;
+        console.log('📡 Haciendo petición a:', url);
+        
+        const response = await fetch(url);
+        
+        console.log('📥 Response status:', response.status);
+        console.log('📥 Response OK:', response.ok);
+        
+        if (!response.ok) {
+            const text = await response.text();
+            console.error('❌ Respuesta del servidor:', text);
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const contentType = response.headers.get("content-type");
+        console.log('📄 Content-Type:', contentType);
+        
+        if (!contentType || !contentType.includes("application/json")) {
+            const text = await response.text();
+            console.error('❌ Respuesta no es JSON:', text.substring(0, 500));
+            throw new Error('La respuesta del servidor no es JSON válido');
+        }
+        
         const data = await response.json();
         
         console.log('📦 Servicios cargados:', data);
         
-        if (data.success && data.servicios.length > 0) {
+        if (data.success && data.servicios && data.servicios.length > 0) {
             allServicios = data.servicios;
             renderServicios();
             setupTabs();
         } else {
+            console.warn('⚠️ No hay servicios disponibles');
             showEmptyState();
         }
     } catch (error) {
-        console.error('Error al cargar servicios:', error);
-        showErrorState();
+        console.error('❌ Error al cargar servicios:', error);
+        showErrorState(error.message);
     }
 }
 
@@ -50,9 +77,11 @@ function renderServicios() {
     const tabsContainer = document.querySelector('.packages__tabs');
     
     if (!packagesContent || !tabsContainer) {
-        console.error('Contenedores no encontrados');
+        console.error('❌ Contenedores no encontrados');
         return;
     }
+    
+    console.log('✅ Renderizando', allServicios.length, 'servicios');
     
     // Limpiar contenido existente
     packagesContent.innerHTML = '';
@@ -87,7 +116,8 @@ function renderServicios() {
         package_div.setAttribute('data-service-id', servicio.id);
         package_div.innerHTML = `
             <div class="package__image">
-                <img src="../${servicio.imagen}" class="package__img" onerror="this.src='../IMG/no-image.png'">
+                <img src="../public/${servicio.imagen}" class="package__img" 
+                     onerror="this.onerror=null; this.src='../IMG/no-image.png';">
             </div>
             <div class="package__info">
                 <div class="package__header">
@@ -110,6 +140,8 @@ function renderServicios() {
         `;
         packagesContent.appendChild(package_div);
     });
+    
+    console.log('✅ Servicios renderizados exitosamente');
 }
 
 
@@ -251,6 +283,8 @@ function setupReservaModal() {
 }
 
 function openReservaModal(servicioId) {
+    console.log('🎯 Abriendo modal para servicio ID:', servicioId);
+    
     const servicio = allServicios.find(s => s.id == servicioId);
     
     if (!servicio) {
@@ -335,6 +369,8 @@ async function confirmarReserva() {
     btn.innerHTML = '<span class="material-icons rotating">sync</span> Procesando...';
     
     try {
+        console.log('📤 Enviando reserva a:', RESERVAS_API);
+        
         const response = await fetch(RESERVAS_API, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -352,9 +388,11 @@ async function confirmarReserva() {
             })
         });
         
+        console.log('📥 Response status:', response.status);
+        
         const data = await response.json();
         
-        console.log('Respuesta de reserva:', data);
+        console.log('📥 Respuesta de reserva:', data);
         
         if (data.success) {
             // Mostrar modal de éxito
@@ -366,7 +404,7 @@ async function confirmarReserva() {
             btn.innerHTML = originalHTML;
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('❌ Error:', error);
         showToast('Error de conexión', 'error');
         btn.disabled = false;
         btn.innerHTML = originalHTML;
@@ -437,12 +475,16 @@ function showEmptyState() {
                 <p style="font-size: 1.2rem; color: #666; margin-top: 1rem;">
                     No hay servicios disponibles
                 </p>
+                <button onclick="loadServiciosFromDB()" class="package__btn" style="margin-top: 1.5rem;">
+                    <span class="material-icons">refresh</span>
+                    Reintentar
+                </button>
             </div>
         `;
     }
 }
 
-function showErrorState() {
+function showErrorState(errorMsg = '') {
     const content = document.querySelector('.packages__content');
     if (content) {
         content.innerHTML = `
@@ -451,6 +493,7 @@ function showErrorState() {
                 <p style="font-size: 1.2rem; color: #666; margin-top: 1rem;">
                     Error al cargar servicios
                 </p>
+                ${errorMsg ? `<p style="font-size: 0.9rem; color: #999; margin-top: 0.5rem;">${errorMsg}</p>` : ''}
                 <button onclick="loadServiciosFromDB()" class="package__btn" style="margin-top: 1.5rem;">
                     <span class="material-icons">refresh</span>
                     Reintentar
