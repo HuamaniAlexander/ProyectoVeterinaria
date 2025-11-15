@@ -2,7 +2,7 @@
 // DASHBOARD PETZONE
 
 
-const API_URL = "../../api/";
+const API_URL = "../../routes/router.php?recurso="; // ✅ Cambiado
 let currentUser = null;
 
 
@@ -14,10 +14,10 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
   const password = document.getElementById("password").value;
 
   try {
-    const response = await fetch(`${API_URL}auth.php`, {
+    const response = await fetch(`${API_URL}auth&action=login`, { // ✅ Cambiado
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "login", username, password }),
+      body: JSON.stringify({ username, password }),
     });
 
     const data = await response.json();

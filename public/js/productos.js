@@ -1,17 +1,9 @@
-/**
- * Sistema de Productos Dinámicos - PetZone
- * Carga productos desde la base de datos
- */
-
-const API_URL = '../routes/router.php';
+const API_URL = '../routes/router.php?recurso=productos';
 const PRODUCTS_PER_PAGE = 6;
 let allProducts = [];
 let filteredProducts = [];
 let currentFilter = 'todos';
 let displayedCount = PRODUCTS_PER_PAGE;
-
-
-// INICIALIZACIÓN
 
 document.addEventListener('DOMContentLoaded', () => {
     loadProductsFromDB();
@@ -19,14 +11,16 @@ document.addEventListener('DOMContentLoaded', () => {
     setupShowMoreButton();
 });
 
-
-// CARGAR PRODUCTOS DESDE LA BASE DE DATOS
-
 async function loadProductsFromDB() {
     try {
         showLoading();
         
-        const response = await fetch(`${API_URL}?action=list`);
+        const response = await fetch(`${API_URL}&action=list`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
         
         if (data.success && data.productos.length > 0) {
@@ -42,9 +36,6 @@ async function loadProductsFromDB() {
         showErrorState();
     }
 }
-
-
-// RENDERIZAR PRODUCTOS
 
 function renderProducts() {
     const grid = document.getElementById('productGrid');
@@ -64,9 +55,9 @@ function renderProducts() {
     const productsToShow = filteredProducts.slice(0, displayedCount);
     
     grid.innerHTML = productsToShow.map(producto => `
-        <article class="product" data-category="${producto.categoria_slug}" data-id="${producto.id}" data-precio="${producto.precio}" data-stock="${producto.stock}">
+        <article class="product" data-category="${producto.categoria_slug}" data-id="${producto.id}">
             <div class="product__image">
-                <img src="../${producto.imagen}" alt="${producto.nombre}" class="product__img" onerror="this.src='../IMG/no-image.png'">
+                <img src="../public/${producto.imagen}" alt="${producto.nombre}" class="product__img" onerror="this.onerror=null;">
                 ${producto.destacado == 1 ? '<span class="product__badge">⭐ Destacado</span>' : ''}
             </div>
             <div class="product__info">
@@ -104,23 +95,17 @@ function renderProducts() {
         </article>
     `).join('');
     
-    // Animar entrada
     animateProducts();
 }
-
-
-// FILTROS
 
 function setupFilters() {
     const filterButtons = document.querySelectorAll('.filters__btn');
     
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
-            // Remover clase activa
             filterButtons.forEach(btn => btn.classList.remove('filters__btn--active'));
             this.classList.add('filters__btn--active');
             
-            // Aplicar filtro
             currentFilter = this.getAttribute('data-filter');
             applyFilter();
         });
@@ -128,7 +113,7 @@ function setupFilters() {
 }
 
 function applyFilter() {
-    displayedCount = PRODUCTS_PER_PAGE; // Resetear contador
+    displayedCount = PRODUCTS_PER_PAGE;
     
     if (currentFilter === 'todos') {
         filteredProducts = [...allProducts];
@@ -141,9 +126,6 @@ function applyFilter() {
     renderProducts();
     updateShowMoreButton();
 }
-
-
-// BOTÓN "MOSTRAR MÁS"
 
 function setupShowMoreButton() {
     const showMoreBtn = document.getElementById('showMoreBtn');
@@ -170,13 +152,10 @@ function updateShowMoreButton() {
         const remaining = filteredProducts.length - displayedCount;
         const moreText = showMoreBtn.querySelector('.catalog__more-text');
         if (moreText) {
-            moreText.textContent = `Mostrar más (${remaining} productos restantes)`;
+            moreText.textContent = `Mostrar más (${remaining} productos)`;
         }
     }
 }
-
-
-// ESTADOS DE CARGA
 
 function showLoading() {
     const grid = document.getElementById('productGrid');
@@ -220,9 +199,6 @@ function showErrorState() {
     `;
 }
 
-
-// ANIMACIÓN DE PRODUCTOS
-
 function animateProducts() {
     const products = document.querySelectorAll('.product');
     
@@ -238,9 +214,6 @@ function animateProducts() {
     });
 }
 
-
-// FUNCIONES AUXILIARES PARA CANTIDADES
-
 function increaseQuantity(button) {
     const input = button.closest('.product__quantity-controls').querySelector('.quantity-input');
     const max = parseInt(input.getAttribute('max')) || 999;
@@ -248,8 +221,6 @@ function increaseQuantity(button) {
     
     if (value < max) {
         input.value = value + 1;
-    } else {
-        showToast('Stock máximo alcanzado', 'warning');
     }
 }
 
@@ -261,40 +232,6 @@ function decreaseQuantity(button) {
     if (value > min) {
         input.value = value - 1;
     }
-}
-
-
-// FUNCIÓN DE TOAST (debe estar definida o importada)
-
-function showToast(message, type = 'info') {
-    const existingToast = document.querySelector('.toast-notification');
-    if (existingToast) {
-        existingToast.remove();
-    }
-    
-    const toast = document.createElement('div');
-    toast.className = `toast-notification toast-${type}`;
-    
-    const icon = {
-        success: 'check_circle',
-        error: 'error',
-        warning: 'warning',
-        info: 'info'
-    }[type] || 'info';
-    
-    toast.innerHTML = `
-        <span class="material-icons">${icon}</span>
-        <span>${message}</span>
-    `;
-    
-    document.body.appendChild(toast);
-    
-    setTimeout(() => toast.classList.add('show'), 10);
-    
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
 }
 
 console.log('✅ Sistema de productos dinámicos cargado');

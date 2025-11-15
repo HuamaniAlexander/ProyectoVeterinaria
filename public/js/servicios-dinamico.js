@@ -3,8 +3,8 @@
  * Archivo: JS/servicios-dinamico.js
  */
 
-const SERVICIOS_API = 'api/servicios.php';
-const RESERVAS_API = 'api/reservas.php';
+const SERVICIOS_API = '../routes/router.php?recurso=servicios'; // ✅ Cambiado
+const RESERVAS_API = '../routes/router.php?recurso=reservas'; 
 
 let allServicios = [];
 let currentServicio = null;

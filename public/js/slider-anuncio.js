@@ -3,14 +3,13 @@
  * Carga dinámica desde la base de datos
  */
 
-const API_URL = 'api/';
-
+const API_URL = '../routes/router.php?recurso='; // ✅ Cambiado
 
 // SLIDER SUPERIOR
 
 async function loadTopSlider() {
     try {
-        const response = await fetch(`${API_URL}sliders.php?action=activos`);
+        const response = await fetch(`${API_URL}sliders&action=activos`); // ✅ Cambiado
         const data = await response.json();
         
         if (data.success && data.sliders.length > 0) {
@@ -47,7 +46,7 @@ async function loadTopSlider() {
 
 async function loadBottomAnnouncement() {
     try {
-        const response = await fetch(`${API_URL}anuncios.php?action=activos`);
+        const response = await fetch(`${API_URL}anuncios&action=activos`); // ✅ Cambiado
         const data = await response.json();
         
         if (data.success && data.anuncios.length > 0) {

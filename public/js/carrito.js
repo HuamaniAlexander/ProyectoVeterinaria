@@ -1,31 +1,23 @@
 /**
  * Sistema de Carrito de Compras - PetZone
- * Archivo: JS/carrito.js
- * VERSIÓN CORREGIDA - Problemas resueltos
  */
 
-// Determinar la ruta correcta de la API según la ubicación de la página
-const CART_API = window.location.pathname.includes('/HTML/') 
-    ? '../api/carrito.php' 
-    : 'api/carrito.php';
-
-
-
+// ✅ RUTA CORREGIDA
+const CART_API = window.location.pathname.includes('/public/') 
+    ? '../routes/router.php?recurso=carrito' 
+    : 'routes/router.php?recurso=carrito';
 
 // INICIALIZACIÓN
-
 document.addEventListener('DOMContentLoaded', () => {
     loadCartCount();
     setupCartModal();
-    // NO llamar setupProductButtons aquí porque productos.html tiene su propio control
 });
 
-
 // CARGAR CONTADOR DEL CARRITO
-
 async function loadCartCount() {
     try {
-        const response = await fetch(`${CART_API}?action=get`);
+        // ✅ CORRECCIÓN: Usar & en vez de ?
+        const response = await fetch(`${CART_API}&action=get`); // ⚠️ CAMBIO AQUÍ
         const data = await response.json();
         
         if (data.success) {
@@ -44,9 +36,7 @@ function updateCartCount(count) {
     }
 }
 
-
-// AGREGAR AL CARRITO - VERSIÓN CORREGIDA
-
+// AGREGAR AL CARRITO
 async function addToCart(button) {
     const productCard = button.closest('.product');
     const productId = parseInt(productCard.dataset.id);
@@ -59,55 +49,41 @@ async function addToCart(button) {
         return;
     }
     
-    // Deshabilitar botón y cambiar texto
     button.disabled = true;
     const originalHTML = button.innerHTML;
     button.innerHTML = '<span class="material-icons rotating">sync</span> Agregando...';
     button.classList.add('adding');
     
-    // 🔥 LOG PARA DEBUG - Ver qué se está enviando
-    console.log('📤 Enviando datos:', {
-        action: 'add',
-        producto_id: productId,
-        cantidad: quantity
-    });
-    
     try {
-        const response = await fetch(CART_API, {
+        const response = await fetch(CART_API, { // ✅ YA NO NECESITA action aquí
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
             body: JSON.stringify({
-                action: 'add',
+                action: 'add', // ✅ Se envía en el body
                 producto_id: productId,
                 cantidad: quantity
             })
         });
         
-        // 🔥 LOG PARA DEBUG - Ver la respuesta del servidor
         const responseText = await response.text();
-        console.log('📥 Respuesta del servidor (raw):', responseText);
+        console.log('📥 Respuesta del servidor:', responseText);
         
         let data;
         try {
             data = JSON.parse(responseText);
         } catch (e) {
             console.error('❌ Error al parsear JSON:', e);
-            console.log('Respuesta recibida:', responseText);
             throw new Error('Respuesta del servidor no es JSON válido');
         }
         
-        console.log('📥 Datos parseados:', data);
-        
         if (data.success) {
-            // ✅ TOAST EN VEZ DE ALERT
             showToast(`✓ ${productName} agregado al carrito`, 'success');
             updateCartCount(data.cart.count);
-            quantityInput.value = 1; // Resetear cantidad
+            quantityInput.value = 1;
             
-            // Animación de éxito
             button.innerHTML = '<span class="material-icons">check_circle</span> ¡Agregado!';
             
             setTimeout(() => {
@@ -130,11 +106,8 @@ async function addToCart(button) {
     }
 }
 
-
 // MODAL DEL CARRITO
-
 function setupCartModal() {
-    // Crear modal del carrito si no existe
     if (!document.getElementById('cartModal')) {
         const modalHTML = `
             <div id="cartModal" class="cart-modal">
@@ -200,7 +173,7 @@ function closeCartModal() {
 
 async function loadCartItems() {
     try {
-        const response = await fetch(`${CART_API}?action=get`);
+        const response = await fetch(`${CART_API}&action=get`); // ✅ CORRECCIÓN
         const data = await response.json();
         
         const cartItemsDiv = document.getElementById('cartItems');
@@ -235,12 +208,10 @@ async function loadCartItems() {
                 </div>
             `).join('');
             
-            // Calcular totales
             const subtotal = parseFloat(data.totales.subtotal);
             const envio = subtotal >= 100 ? 0 : 10;
             const total = subtotal + envio;
             
-            // Actualizar totales
             document.getElementById('cartSubtotal').textContent = `S/. ${subtotal.toFixed(2)}`;
             document.getElementById('cartEnvio').textContent = envio === 0 ? 'GRATIS' : `S/. ${envio.toFixed(2)}`;
             document.getElementById('cartTotal').textContent = `S/. ${total.toFixed(2)}`;
@@ -276,7 +247,7 @@ async function updateCartQuantity(productId, newQuantity) {
     }
     
     try {
-        const response = await fetch(CART_API, {
+        const response = await fetch(CART_API, { // ✅ Sin &action en URL
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -345,12 +316,8 @@ async function clearCart() {
 }
 
 function goToCheckout() {
-    //window.location.href = '../HTML/checkout.html';
     alert('Proximamente...');
 }
-
-
-// FUNCIONES AUXILIARES PARA PRODUCTOS.HTML
 
 function increaseQuantity(button) {
     const input = button.closest('.product__quantity-controls').querySelector('.quantity-input');
@@ -374,11 +341,7 @@ function decreaseQuantity(button) {
     }
 }
 
-
-// TOAST NOTIFICATIONS - SIN ALERTS
-
 function showToast(message, type = 'info') {
-    // Remover toast existente
     const existingToast = document.querySelector('.toast-notification');
     if (existingToast) {
         existingToast.remove();
@@ -409,9 +372,6 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
-
-// CERRAR MODAL CON ESC
-
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         const modal = document.getElementById('cartModal');
@@ -421,4 +381,4 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-console.log('✅ Carrito.js cargado ');
+console.log('✅ Carrito.js cargado');
