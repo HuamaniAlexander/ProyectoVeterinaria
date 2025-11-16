@@ -3,7 +3,7 @@
  * Carga dinámica desde la base de datos
  */
 
-const API_URL = 'api/';
+const API_URL = 'controlador/';
 
 // ================================================
 // SLIDER SUPERIOR
@@ -24,7 +24,7 @@ async function loadTopSlider() {
             
             sliderDiv.innerHTML = `
                 <a href="${slider.enlace || '#'}" class="slider-content" style="
-                        ${imgPath ? `background-image: url('${imgPath}');` : ""}
+                        ${imgPath ? `background-image: url('public/${imgPath}');` : ""}
                         background-size: cover;
                         background-position: center;
                         background-repeat: no-repeat;

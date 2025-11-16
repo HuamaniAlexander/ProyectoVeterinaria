@@ -24,7 +24,7 @@ async function loadServiciosFromDB() {
     try {
         showLoading();
         
-        const response = await fetch(`${SERVICIOS_API}?action=list`);
+        const response = await fetch(`../${SERVICIOS_API}?action=list`);
         const data = await response.json();
         
         console.log('📦 Servicios cargados:', data);

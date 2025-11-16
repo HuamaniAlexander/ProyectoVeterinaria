@@ -26,7 +26,7 @@ async function loadProductsFromDB() {
     try {
         showLoading();
         
-        const response = await fetch(`${API_URL}?action=list`);
+        const response = await fetch(`../${API_URL}?action=list`);
         const data = await response.json();
         
         if (data.success && data.productos.length > 0) {

@@ -3,7 +3,6 @@
 // ================================================
 
 const API_URL = "../../../controlador/";
-//const API_URL = "../controlador/";
 let currentUser = null;
 
 // ================================================
@@ -98,7 +97,7 @@ function showSection(sectionName) {
 async function loadDashboardData() {
   updateDate();
   loadEstadisticas();
-  loadActividad();
+  //loadActividad();
 }
 
 function updateDate() {
@@ -129,7 +128,7 @@ async function loadEstadisticas() {
     console.error("Error al cargar estadísticas:", error);
   }
 }
-
+/*
 async function loadActividad() {
   try {
     const response = await fetch(`${API_URL}actividad.php`);
@@ -156,7 +155,7 @@ async function loadActividad() {
   } catch (error) {
     console.error("Error al cargar actividad:", error);
   }
-}
+}*/
 
 // ================================================
 // GESTIÓN DE PRODUCTOS

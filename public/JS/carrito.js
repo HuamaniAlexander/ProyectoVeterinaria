@@ -7,7 +7,7 @@
 // Determinar la ruta correcta de la API según la ubicación de la página
 const CART_API = window.location.pathname.includes('/HTML/') 
     ? '../controlador/carrito.php' 
-    : 'api/carrito.php';
+    : 'controlador/carrito.php';
 
 
 
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ================================================
 async function loadCartCount() {
     try {
-        const response = await fetch(`${CART_API}?action=get`);
+        const response = await fetch(`../${CART_API}?action=get`);
         const data = await response.json();
         
         if (data.success) {
