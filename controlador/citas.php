@@ -1,7 +1,7 @@
 <?php
 /**
- * API de Citas - PetZone
- * Maneja las solicitudes de citas del formulario de reserva
+ * Controlador de Citas - PetZone
+ * Maneja las solicitudes HTTP y usa CitasModelo
  */
 
 error_reporting(E_ALL);
@@ -10,6 +10,8 @@ ini_set('log_errors', 1);
 ob_start();
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../modelo/citasModelo.php';
+
 ob_end_clean();
 
 header('Content-Type: application/json; charset=utf-8');
@@ -27,6 +29,8 @@ session_start();
 $requestData = json_decode(file_get_contents('php://input'), true) ?? [];
 $action = $_GET['action'] ?? $requestData['action'] ?? $_POST['action'] ?? 'list';
 
+$citasModelo = new CitasModelo();
+
 try {
     switch($action) {
         case 'list':
@@ -34,7 +38,7 @@ try {
             if (!isset($_SESSION['user_id'])) {
                 jsonResponse(['success' => false, 'message' => 'No autenticado'], 401);
             }
-            listCitas();
+            handleList($citasModelo);
             break;
             
         case 'get':
@@ -42,12 +46,12 @@ try {
             if (!isset($_SESSION['user_id'])) {
                 jsonResponse(['success' => false, 'message' => 'No autenticado'], 401);
             }
-            getCita();
+            handleGet($citasModelo);
             break;
             
         case 'create':
             // Público - crear cita desde formulario
-            createCita();
+            handleCreate($citasModelo);
             break;
             
         case 'update':
@@ -55,7 +59,7 @@ try {
             if (!isset($_SESSION['user_id'])) {
                 jsonResponse(['success' => false, 'message' => 'No autenticado'], 401);
             }
-            updateCita();
+            handleUpdate($citasModelo);
             break;
             
         case 'delete':
@@ -63,7 +67,7 @@ try {
             if (!isset($_SESSION['user_id'])) {
                 jsonResponse(['success' => false, 'message' => 'No autenticado'], 401);
             }
-            deleteCita();
+            handleDelete($citasModelo);
             break;
             
         case 'update_estado':
@@ -71,7 +75,7 @@ try {
             if (!isset($_SESSION['user_id'])) {
                 jsonResponse(['success' => false, 'message' => 'No autenticado'], 401);
             }
-            updateEstado();
+            handleUpdateEstado($citasModelo);
             break;
             
         case 'stats':
@@ -79,7 +83,7 @@ try {
             if (!isset($_SESSION['user_id'])) {
                 jsonResponse(['success' => false, 'message' => 'No autenticado'], 401);
             }
-            getStats();
+            handleStats($citasModelo);
             break;
             
         default:
@@ -93,74 +97,40 @@ try {
 /**
  * Listar todas las citas (Admin)
  */
-function listCitas() {
-    $db = getDB();
-    
+function handleList($modelo) {
     $filtro = $_GET['filtro'] ?? 'todas';
     $busqueda = $_GET['busqueda'] ?? '';
     $limite = (int)($_GET['limite'] ?? 50);
     $pagina = (int)($_GET['pagina'] ?? 1);
     $offset = ($pagina - 1) * $limite;
     
-    $query = "SELECT * FROM vista_citas WHERE 1=1";
-    $params = [];
+    $citas = $modelo->listar($filtro, $busqueda, $limite, $offset);
+    $total = $modelo->contarTotal($filtro, $busqueda);
     
-    // Filtro por estado
-    if ($filtro !== 'todas') {
-        $query .= " AND estado = ?";
-        $params[] = $filtro;
+    if ($citas !== false) {
+        jsonResponse([
+            'success' => true, 
+            'citas' => $citas,
+            'total' => $total,
+            'pagina' => $pagina,
+            'totalPaginas' => ceil($total / $limite)
+        ]);
+    } else {
+        jsonResponse(['success' => false, 'message' => 'Error al cargar citas'], 500);
     }
-    
-    // Búsqueda
-    if (!empty($busqueda)) {
-        $query .= " AND (nombre LIKE ? OR correo LIKE ? OR telefono LIKE ? OR codigo_cita LIKE ?)";
-        $busquedaParam = "%{$busqueda}%";
-        $params[] = $busquedaParam;
-        $params[] = $busquedaParam;
-        $params[] = $busquedaParam;
-        $params[] = $busquedaParam;
-    }
-    
-    // Contar total
-    $stmtCount = $db->prepare("SELECT COUNT(*) as total FROM citas WHERE 1=1" . 
-        ($filtro !== 'todas' ? " AND estado = ?" : "") .
-        (!empty($busqueda) ? " AND (nombre LIKE ? OR correo LIKE ? OR telefono LIKE ? OR codigo_cita LIKE ?)" : "")
-    );
-    $stmtCount->execute($params);
-    $total = $stmtCount->fetch()['total'];
-    
-    // Obtener citas
-    $query .= " ORDER BY fecha_solicitud DESC LIMIT ? OFFSET ?";
-    $params[] = $limite;
-    $params[] = $offset;
-    
-    $stmt = $db->prepare($query);
-    $stmt->execute($params);
-    $citas = $stmt->fetchAll();
-    
-    jsonResponse([
-        'success' => true, 
-        'citas' => $citas,
-        'total' => $total,
-        'pagina' => $pagina,
-        'totalPaginas' => ceil($total / $limite)
-    ]);
 }
 
 /**
  * Obtener una cita específica (Admin)
  */
-function getCita() {
+function handleGet($modelo) {
     $id = $_GET['id'] ?? null;
     
     if (!$id) {
         jsonResponse(['success' => false, 'message' => 'ID requerido'], 400);
     }
     
-    $db = getDB();
-    $stmt = $db->prepare("SELECT * FROM citas WHERE id = ?");
-    $stmt->execute([$id]);
-    $cita = $stmt->fetch();
+    $cita = $modelo->obtenerPorId($id);
     
     if ($cita) {
         jsonResponse(['success' => true, 'cita' => $cita]);
@@ -172,7 +142,7 @@ function getCita() {
 /**
  * Crear nueva cita (Público - Formulario)
  */
-function createCita() {
+function handleCreate($modelo) {
     // Obtener datos del POST o JSON
     $data = $_POST;
     if (empty($data)) {
@@ -195,37 +165,26 @@ function createCita() {
     }
     
     // Generar código único
-    $codigoCita = generarCodigoCita();
+    $codigoCita = $modelo->generarCodigoCita();
     
-    $db = getDB();
+    $datos = [
+        'codigo_cita' => $codigoCita,
+        'nombre' => $nombre,
+        'correo' => $correo,
+        'telefono' => $telefono,
+        'servicio' => $servicio,
+        'mensaje' => $mensaje,
+        'ip_address' => $_SERVER['REMOTE_ADDR'] ?? null
+    ];
     
     try {
-        $stmt = $db->prepare("
-            INSERT INTO citas (codigo_cita, nombre, correo, telefono, servicio, mensaje, estado, ip_address) 
-            VALUES (?, ?, ?, ?, ?, ?, 'pendiente', ?)
-        ");
-        
-        $result = $stmt->execute([
-            $codigoCita,
-            $nombre,
-            $correo,
-            $telefono,
-            $servicio,
-            $mensaje,
-            $_SERVER['REMOTE_ADDR'] ?? null
-        ]);
+        $result = $modelo->crear($datos);
         
         if ($result) {
-            $citaId = $db->lastInsertId();
-            
-            // Opcional: Enviar email de confirmación
-            // enviarEmailConfirmacion($correo, $nombre, $codigoCita);
-            
             jsonResponse([
                 'success' => true, 
                 'message' => 'Cita registrada exitosamente. Te contactaremos pronto.',
-                'codigo_cita' => $codigoCita,
-                'id' => $citaId
+                'codigo_cita' => $codigoCita
             ]);
         } else {
             jsonResponse(['success' => false, 'message' => 'Error al registrar la cita'], 500);
@@ -239,7 +198,7 @@ function createCita() {
 /**
  * Actualizar cita (Admin)
  */
-function updateCita() {
+function handleUpdate($modelo) {
     $data = json_decode(file_get_contents('php://input'), true);
     if (empty($data)) {
         $data = $_POST;
@@ -250,25 +209,24 @@ function updateCita() {
         jsonResponse(['success' => false, 'message' => 'ID inválido'], 400);
     }
     
-    $nombre = sanitize($data['nombre'] ?? '');
-    $correo = sanitize($data['correo'] ?? '');
-    $telefono = sanitize($data['telefono'] ?? '');
-    $servicio = sanitize($data['servicio'] ?? '');
-    $mensaje = sanitize($data['mensaje'] ?? '');
-    $estado = sanitize($data['estado'] ?? 'pendiente');
+    $datos = [
+        'nombre' => sanitize($data['nombre'] ?? ''),
+        'correo' => sanitize($data['correo'] ?? ''),
+        'telefono' => sanitize($data['telefono'] ?? ''),
+        'servicio' => sanitize($data['servicio'] ?? ''),
+        'mensaje' => sanitize($data['mensaje'] ?? ''),
+        'estado' => sanitize($data['estado'] ?? 'pendiente')
+    ];
     
-    $db = getDB();
-    
-    $stmt = $db->prepare("
-        UPDATE citas 
-        SET nombre = ?, correo = ?, telefono = ?, servicio = ?, mensaje = ?, estado = ?
-        WHERE id = ?
-    ");
-    
-    $result = $stmt->execute([$nombre, $correo, $telefono, $servicio, $mensaje, $estado, $id]);
+    $result = $modelo->actualizar($id, $datos);
     
     if ($result) {
-        registrarActividad($db, $_SESSION['user_id'], 'Cita actualizada', 'Citas', "Cita ID: {$id} - Cliente: {$nombre}");
+        $modelo->registrarActividad(
+            $_SESSION['user_id'], 
+            'Cita actualizada', 
+            'Citas', 
+            "Cita ID: {$id} - Cliente: {$datos['nombre']}"
+        );
         jsonResponse(['success' => true, 'message' => 'Cita actualizada exitosamente']);
     } else {
         jsonResponse(['success' => false, 'message' => 'Error al actualizar cita'], 500);
@@ -278,7 +236,7 @@ function updateCita() {
 /**
  * Eliminar cita (Admin)
  */
-function deleteCita() {
+function handleDelete($modelo) {
     $data = json_decode(file_get_contents('php://input'), true);
     $id = (int)($data['id'] ?? 0);
     
@@ -286,21 +244,22 @@ function deleteCita() {
         jsonResponse(['success' => false, 'message' => 'ID inválido'], 400);
     }
     
-    $db = getDB();
-    
-    $stmt = $db->prepare("SELECT codigo_cita, nombre FROM citas WHERE id = ?");
-    $stmt->execute([$id]);
-    $cita = $stmt->fetch();
+    // Obtener datos antes de eliminar para el log
+    $cita = $modelo->obtenerPorId($id);
     
     if (!$cita) {
         jsonResponse(['success' => false, 'message' => 'Cita no encontrada'], 404);
     }
     
-    $stmt = $db->prepare("DELETE FROM citas WHERE id = ?");
-    $result = $stmt->execute([$id]);
+    $result = $modelo->eliminar($id);
     
     if ($result) {
-        registrarActividad($db, $_SESSION['user_id'], 'Cita eliminada', 'Citas', "Código: {$cita['codigo_cita']} - Cliente: {$cita['nombre']}");
+        $modelo->registrarActividad(
+            $_SESSION['user_id'], 
+            'Cita eliminada', 
+            'Citas', 
+            "Código: {$cita['codigo_cita']} - Cliente: {$cita['nombre']}"
+        );
         jsonResponse(['success' => true, 'message' => 'Cita eliminada exitosamente']);
     } else {
         jsonResponse(['success' => false, 'message' => 'Error al eliminar cita'], 500);
@@ -310,7 +269,7 @@ function deleteCita() {
 /**
  * Actualizar solo el estado de la cita (Admin)
  */
-function updateEstado() {
+function handleUpdateEstado($modelo) {
     $data = json_decode(file_get_contents('php://input'), true);
     $id = (int)($data['id'] ?? 0);
     $estado = sanitize($data['estado'] ?? '');
@@ -325,12 +284,15 @@ function updateEstado() {
         jsonResponse(['success' => false, 'message' => 'Estado inválido'], 400);
     }
     
-    $db = getDB();
-    $stmt = $db->prepare("UPDATE citas SET estado = ? WHERE id = ?");
-    $result = $stmt->execute([$estado, $id]);
+    $result = $modelo->actualizarEstado($id, $estado);
     
     if ($result) {
-        registrarActividad($db, $_SESSION['user_id'], 'Estado de cita actualizado', 'Citas', "Cita ID: {$id} - Nuevo estado: {$estado}");
+        $modelo->registrarActividad(
+            $_SESSION['user_id'], 
+            'Estado de cita actualizado', 
+            'Citas', 
+            "Cita ID: {$id} - Nuevo estado: {$estado}"
+        );
         jsonResponse(['success' => true, 'message' => 'Estado actualizado exitosamente']);
     } else {
         jsonResponse(['success' => false, 'message' => 'Error al actualizar estado'], 500);
@@ -340,92 +302,19 @@ function updateEstado() {
 /**
  * Obtener estadísticas de citas (Admin)
  */
-function getStats() {
-    $db = getDB();
+function handleStats($modelo) {
+    $stats = $modelo->obtenerEstadisticas();
+    $serviciosTop = $modelo->obtenerServiciosTop(5);
+    $citasRecientes = $modelo->obtenerRecientesPendientes(10);
     
-    // Estadísticas generales
-    $stmt = $db->query("
-        SELECT 
-            COUNT(*) as total,
-            SUM(CASE WHEN estado = 'pendiente' THEN 1 ELSE 0 END) as pendientes,
-            SUM(CASE WHEN estado = 'confirmada' THEN 1 ELSE 0 END) as confirmadas,
-            SUM(CASE WHEN estado = 'completada' THEN 1 ELSE 0 END) as completadas,
-            SUM(CASE WHEN estado = 'cancelada' THEN 1 ELSE 0 END) as canceladas,
-            SUM(CASE WHEN DATE(fecha_solicitud) = CURDATE() THEN 1 ELSE 0 END) as hoy,
-            SUM(CASE WHEN WEEK(fecha_solicitud) = WEEK(CURDATE()) THEN 1 ELSE 0 END) as esta_semana,
-            SUM(CASE WHEN MONTH(fecha_solicitud) = MONTH(CURDATE()) THEN 1 ELSE 0 END) as este_mes
-        FROM citas
-    ");
-    $stats = $stmt->fetch();
-    
-    // Servicios más solicitados
-    $stmt = $db->query("
-        SELECT servicio, COUNT(*) as total 
-        FROM citas 
-        GROUP BY servicio 
-        ORDER BY total DESC 
-        LIMIT 5
-    ");
-    $serviciosTop = $stmt->fetchAll();
-    
-    // Citas recientes
-    $stmt = $db->query("
-        SELECT * FROM vista_citas 
-        WHERE estado = 'pendiente' 
-        ORDER BY fecha_solicitud DESC 
-        LIMIT 10
-    ");
-    $citasRecientes = $stmt->fetchAll();
-    
-    jsonResponse([
-        'success' => true,
-        'stats' => $stats,
-        'servicios_top' => $serviciosTop,
-        'citas_recientes' => $citasRecientes
-    ]);
-}
-
-/**
- * Generar código único para la cita
- */
-function generarCodigoCita() {
-    return 'CITA-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid(rand(), true)), 0, 6));
-}
-
-/**
- * Registrar actividad del admin
- */
-function registrarActividad($db, $userId, $accion, $modulo, $detalle = null) {
-    try {
-        $stmt = $db->prepare("
-            INSERT INTO actividad_admin (usuario_id, accion, modulo, detalle, ip_address) 
-            VALUES (?, ?, ?, ?, ?)
-        ");
-        $stmt->execute([$userId, $accion, $modulo, $detalle, $_SERVER['REMOTE_ADDR'] ?? null]);
-    } catch (Exception $e) {
-        error_log("Error al registrar actividad: " . $e->getMessage());
+    if ($stats !== false) {
+        jsonResponse([
+            'success' => true,
+            'stats' => $stats,
+            'servicios_top' => $serviciosTop,
+            'citas_recientes' => $citasRecientes
+        ]);
+    } else {
+        jsonResponse(['success' => false, 'message' => 'Error al obtener estadísticas'], 500);
     }
 }
-
-/**
- * Función opcional para enviar email de confirmación
- */
-function enviarEmailConfirmacion($correo, $nombre, $codigoCita) {
-    // Implementar según tu sistema de emails
-    // Ejemplo con PHPMailer o mail() de PHP
-    $asunto = "Confirmación de Cita - PetZone";
-    $mensaje = "
-        Hola {$nombre},
-        
-        Tu solicitud de cita ha sido recibida exitosamente.
-        Código de cita: {$codigoCita}
-        
-        Nos pondremos en contacto contigo pronto para confirmar la fecha y hora.
-        
-        Saludos,
-        Equipo PetZone
-    ";
-    
-    // mail($correo, $asunto, $mensaje);
-}
-?>

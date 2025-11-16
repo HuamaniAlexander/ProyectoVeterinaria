@@ -1,60 +1,120 @@
 <?php
-// Evitar que se muestren errores como HTML
+/**
+ * Controlador de Contenido General - PetZone
+ * Maneja las solicitudes HTTP y usa ContenidoModelo
+ */
+
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/../logs/php_errors.log');
 
-// Iniciar output buffering para capturar cualquier salida inesperada
 ob_start();
 
-require_once '../config/database.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../modelo/contenidoModelo.php';
+
+ob_end_clean();
+
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
 session_start();
 
-header('Content-Type: application/json');
+$requestData = json_decode(file_get_contents('php://input'), true) ?? [];
+$action = $_GET['action'] ?? $_POST['action'] ?? $requestData['action'] ?? 'get';
 
-$action = $_GET['action'] ?? $_POST['action'] ?? 'get';
+$contenidoModelo = new ContenidoModelo();
 
 try {
     switch($action) {
         case 'get':
-            getContenido();
+            handleGet($contenidoModelo);
             break;
+            
+        case 'get_by_key':
+            handleGetByKey($contenidoModelo);
+            break;
+            
         case 'update':
             if (!isset($_SESSION['user_id'])) {
                 jsonResponse(['success' => false, 'message' => 'No autenticado'], 401);
             }
-            updateContenido();
+            handleUpdate($contenidoModelo);
             break;
+            
+        case 'update_single':
+            if (!isset($_SESSION['user_id'])) {
+                jsonResponse(['success' => false, 'message' => 'No autenticado'], 401);
+            }
+            handleUpdateSingle($contenidoModelo);
+            break;
+            
+        case 'create':
+            if (!isset($_SESSION['user_id'])) {
+                jsonResponse(['success' => false, 'message' => 'No autenticado'], 401);
+            }
+            handleCreate($contenidoModelo);
+            break;
+            
+        case 'list_sections':
+            handleListSections($contenidoModelo);
+            break;
+            
         default:
             jsonResponse(['success' => false, 'message' => 'Acción no válida'], 400);
     }
 } catch (Exception $e) {
+    error_log("CONTENIDO.PHP - Error: " . $e->getMessage());
     jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
 }
 
-function getContenido() {
+/**
+ * Obtener contenido (opcionalmente filtrado por sección)
+ */
+function handleGet($modelo) {
     $seccion = $_GET['seccion'] ?? '';
     
-    $db = getDB();
-    $sql = "SELECT * FROM contenido_general WHERE 1=1";
-    $params = [];
+    $contenidos = $modelo->obtener($seccion);
     
-    if (!empty($seccion)) {
-        $sql .= " AND seccion = ?";
-        $params[] = $seccion;
+    if ($contenidos !== false) {
+        jsonResponse(['success' => true, 'contenidos' => $contenidos]);
+    } else {
+        jsonResponse(['success' => false, 'message' => 'Error al cargar contenido'], 500);
     }
-    
-    $sql .= " ORDER BY seccion, clave";
-    
-    $stmt = $db->prepare($sql);
-    $stmt->execute($params);
-    $contenidos = $stmt->fetchAll();
-    
-    jsonResponse(['success' => true, 'contenidos' => $contenidos]);
 }
 
-function updateContenido() {
+/**
+ * Obtener contenido específico por sección y clave
+ */
+function handleGetByKey($modelo) {
+    $seccion = $_GET['seccion'] ?? '';
+    $clave = $_GET['clave'] ?? '';
+    
+    if (empty($seccion) || empty($clave)) {
+        jsonResponse(['success' => false, 'message' => 'Sección y clave requeridas'], 400);
+    }
+    
+    $contenido = $modelo->obtenerPorClave($seccion, $clave);
+    
+    if ($contenido) {
+        jsonResponse(['success' => true, 'contenido' => $contenido]);
+    } else {
+        jsonResponse(['success' => false, 'message' => 'Contenido no encontrado'], 404);
+    }
+}
+
+/**
+ * Actualizar múltiples contenidos de una sección
+ */
+function handleUpdate($modelo) {
     $data = json_decode(file_get_contents('php://input'), true);
     
     $seccion = sanitize($data['seccion'] ?? '');
@@ -64,176 +124,113 @@ function updateContenido() {
         jsonResponse(['success' => false, 'message' => 'Datos incompletos'], 400);
     }
     
-    $db = getDB();
+    // Sanitizar todos los valores
+    $contenidosSanitizados = [];
+    foreach ($contenidos as $clave => $valor) {
+        $contenidosSanitizados[$clave] = sanitize($valor);
+    }
     
-    try {
-        $db->beginTransaction();
-        
-        foreach ($contenidos as $clave => $valor) {
-            $stmt = $db->prepare("
-                UPDATE contenido_general 
-                SET valor = ? 
-                WHERE seccion = ? AND clave = ? AND editable = 1
-            ");
-            $stmt->execute([sanitize($valor), $seccion, $clave]);
-        }
-        
-        $db->commit();
-        
-        registrarActividad($db, $_SESSION['user_id'], 'Contenido actualizado', 'Contenido', "Sección: {$seccion}");
+    $result = $modelo->actualizarSeccion($seccion, $contenidosSanitizados);
+    
+    if ($result) {
+        $modelo->registrarActividad(
+            $_SESSION['user_id'], 
+            'Contenido actualizado', 
+            'Contenido', 
+            "Sección: {$seccion}"
+        );
         
         jsonResponse(['success' => true, 'message' => 'Contenido actualizado exitosamente']);
-    } catch (Exception $e) {
-        $db->rollBack();
+    } else {
         jsonResponse(['success' => false, 'message' => 'Error al actualizar contenido'], 500);
     }
 }
 
-function registrarActividad($db, $userId, $accion, $modulo, $detalle = null) {
-    try {
-        $stmt = $db->prepare("
-            INSERT INTO actividad_admin (usuario_id, accion, modulo, detalle, ip_address) 
-            VALUES (?, ?, ?, ?, ?)
-        ");
-        $stmt->execute([$userId, $accion, $modulo, $detalle, $_SERVER['REMOTE_ADDR'] ?? null]);
-    } catch (Exception $e) {
-        error_log("Error al registrar actividad: " . $e->getMessage());
-    }
-}
-?>
-
-<?php
 /**
- * API de Pedidos - PetZone
- * Archivo: api/pedidos.php
+ * Actualizar un solo contenido
  */
-
-require_once '../config/database.php';
-session_start();
-
-header('Content-Type: application/json');
-
-if (!isset($_SESSION['user_id'])) {
-    jsonResponse(['success' => false, 'message' => 'No autenticado'], 401);
-}
-
-$action = $_GET['action'] ?? 'list';
-
-try {
-    switch($action) {
-        case 'list':
-            listPedidos();
-            break;
-        case 'get':
-            getPedido();
-            break;
-        case 'update-estado':
-            updateEstado();
-            break;
-        default:
-            jsonResponse(['success' => false, 'message' => 'Acción no válida'], 400);
-    }
-} catch (Exception $e) {
-    jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
-}
-
-function listPedidos() {
-    $estado = $_GET['estado'] ?? '';
-    $fecha_desde = $_GET['fecha_desde'] ?? '';
-    $fecha_hasta = $_GET['fecha_hasta'] ?? '';
-    
-    $db = getDB();
-    $sql = "SELECT * FROM pedidos WHERE 1=1";
-    $params = [];
-    
-    if (!empty($estado)) {
-        $sql .= " AND estado = ?";
-        $params[] = $estado;
-    }
-    
-    if (!empty($fecha_desde)) {
-        $sql .= " AND DATE(fecha_pedido) >= ?";
-        $params[] = $fecha_desde;
-    }
-    
-    if (!empty($fecha_hasta)) {
-        $sql .= " AND DATE(fecha_pedido) <= ?";
-        $params[] = $fecha_hasta;
-    }
-    
-    $sql .= " ORDER BY fecha_pedido DESC LIMIT 100";
-    
-    $stmt = $db->prepare($sql);
-    $stmt->execute($params);
-    $pedidos = $stmt->fetchAll();
-    
-    jsonResponse(['success' => true, 'pedidos' => $pedidos]);
-}
-
-function getPedido() {
-    $id = $_GET['id'] ?? null;
-    
-    if (!$id) {
-        jsonResponse(['success' => false, 'message' => 'ID requerido'], 400);
-    }
-    
-    $db = getDB();
-    
-    // Obtener pedido
-    $stmt = $db->prepare("SELECT * FROM pedidos WHERE id = ?");
-    $stmt->execute([$id]);
-    $pedido = $stmt->fetch();
-    
-    if (!$pedido) {
-        jsonResponse(['success' => false, 'message' => 'Pedido no encontrado'], 404);
-    }
-    
-    // Obtener detalles del pedido
-    $stmt = $db->prepare("SELECT * FROM detalle_pedidos WHERE pedido_id = ?");
-    $stmt->execute([$id]);
-    $detalles = $stmt->fetchAll();
-    
-    $pedido['detalles'] = $detalles;
-    
-    jsonResponse(['success' => true, 'pedido' => $pedido]);
-}
-
-function updateEstado() {
+function handleUpdateSingle($modelo) {
     $data = json_decode(file_get_contents('php://input'), true);
     
-    $id = (int)($data['id'] ?? 0);
-    $estado = sanitize($data['estado'] ?? '');
+    $seccion = sanitize($data['seccion'] ?? '');
+    $clave = sanitize($data['clave'] ?? '');
+    $valor = sanitize($data['valor'] ?? '');
     
-    if ($id == 0 || empty($estado)) {
-        jsonResponse(['success' => false, 'message' => 'Datos incompletos'], 400);
+    if (empty($seccion) || empty($clave)) {
+        jsonResponse(['success' => false, 'message' => 'Sección y clave requeridas'], 400);
     }
     
-    $estados_validos = ['pendiente', 'procesando', 'enviado', 'entregado', 'cancelado'];
-    if (!in_array($estado, $estados_validos)) {
-        jsonResponse(['success' => false, 'message' => 'Estado inválido'], 400);
+    // Verificar si es editable
+    if (!$modelo->esEditable($seccion, $clave)) {
+        jsonResponse(['success' => false, 'message' => 'Este contenido no es editable'], 403);
     }
     
-    $db = getDB();
-    $stmt = $db->prepare("UPDATE pedidos SET estado = ? WHERE id = ?");
-    $result = $stmt->execute([$estado, $id]);
+    $result = $modelo->actualizar($seccion, $clave, $valor);
     
     if ($result) {
-        registrarActividad($db, $_SESSION['user_id'], 'Estado de pedido actualizado', 'Pedidos', "Pedido ID: {$id} - Estado: {$estado}");
-        jsonResponse(['success' => true, 'message' => 'Estado actualizado exitosamente']);
+        $modelo->registrarActividad(
+            $_SESSION['user_id'], 
+            'Contenido actualizado', 
+            'Contenido', 
+            "Sección: {$seccion}, Clave: {$clave}"
+        );
+        
+        jsonResponse(['success' => true, 'message' => 'Contenido actualizado exitosamente']);
     } else {
-        jsonResponse(['success' => false, 'message' => 'Error al actualizar estado'], 500);
+        jsonResponse(['success' => false, 'message' => 'Error al actualizar contenido'], 500);
     }
 }
 
-function registrarActividad($db, $userId, $accion, $modulo, $detalle = null) {
-    try {
-        $stmt = $db->prepare("
-            INSERT INTO actividad_admin (usuario_id, accion, modulo, detalle, ip_address) 
-            VALUES (?, ?, ?, ?, ?)
-        ");
-        $stmt->execute([$userId, $accion, $modulo, $detalle, $_SERVER['REMOTE_ADDR'] ?? null]);
-    } catch (Exception $e) {
-        error_log("Error al registrar actividad: " . $e->getMessage());
+/**
+ * Crear nuevo contenido
+ */
+function handleCreate($modelo) {
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    $datos = [
+        'seccion' => sanitize($data['seccion'] ?? ''),
+        'clave' => sanitize($data['clave'] ?? ''),
+        'valor' => sanitize($data['valor'] ?? ''),
+        'tipo' => sanitize($data['tipo'] ?? 'texto'),
+        'editable' => isset($data['editable']) ? (int)$data['editable'] : 1,
+        'descripcion' => sanitize($data['descripcion'] ?? '')
+    ];
+    
+    if (empty($datos['seccion']) || empty($datos['clave'])) {
+        jsonResponse(['success' => false, 'message' => 'Sección y clave requeridas'], 400);
+    }
+    
+    // Verificar si ya existe
+    $existente = $modelo->obtenerPorClave($datos['seccion'], $datos['clave']);
+    if ($existente) {
+        jsonResponse(['success' => false, 'message' => 'Este contenido ya existe'], 400);
+    }
+    
+    $result = $modelo->crear($datos);
+    
+    if ($result) {
+        $modelo->registrarActividad(
+            $_SESSION['user_id'], 
+            'Contenido creado', 
+            'Contenido', 
+            "Sección: {$datos['seccion']}, Clave: {$datos['clave']}"
+        );
+        
+        jsonResponse(['success' => true, 'message' => 'Contenido creado exitosamente']);
+    } else {
+        jsonResponse(['success' => false, 'message' => 'Error al crear contenido'], 500);
     }
 }
-?>
+
+/**
+ * Listar todas las secciones disponibles
+ */
+function handleListSections($modelo) {
+    $secciones = $modelo->obtenerSecciones();
+    
+    if ($secciones !== false) {
+        jsonResponse(['success' => true, 'secciones' => $secciones]);
+    } else {
+        jsonResponse(['success' => false, 'message' => 'Error al cargar secciones'], 500);
+    }
+}
