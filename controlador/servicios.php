@@ -1,7 +1,6 @@
 <?php
 /**
- * API de Servicios - PetZone
- * Archivo: api/servicios.php
+ * Controlador de Servicios - PetZone
  */
 
 error_reporting(E_ALL);
@@ -10,6 +9,8 @@ ini_set('log_errors', 1);
 ob_start();
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../modelo/serviciosModelo.php';
+
 ob_end_clean();
 
 header('Content-Type: application/json; charset=utf-8');
@@ -23,17 +24,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 $action = $_GET['action'] ?? 'list';
+$serviciosModelo = new ServiciosModelo();
 
 try {
     switch($action) {
         case 'list':
-            listServicios();
+            handleList($serviciosModelo);
             break;
         case 'get':
-            getServicio();
+            handleGet($serviciosModelo);
             break;
         case 'disponibles':
-            getServiciosDisponibles();
+            handleDisponibles($serviciosModelo);
             break;
         default:
             jsonResponse(['success' => false, 'message' => 'Acción no válida'], 400);
@@ -43,28 +45,24 @@ try {
     jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
 }
 
-function listServicios() {
-    $db = getDB();
+function handleList($modelo) {
+    $servicios = $modelo->listar();
     
-    $stmt = $db->query("
-        SELECT * FROM servicios 
-        WHERE disponible = 1 
-        ORDER BY orden ASC, nombre ASC
-    ");
-    
-    $servicios = $stmt->fetchAll();
-    
-    // Decodificar características JSON
-    foreach ($servicios as &$servicio) {
-        if ($servicio['caracteristicas']) {
-            $servicio['caracteristicas'] = json_decode($servicio['caracteristicas'], true);
+    if ($servicios !== false) {
+        // Decodificar características JSON
+        foreach ($servicios as &$servicio) {
+            if ($servicio['caracteristicas']) {
+                $servicio['caracteristicas'] = json_decode($servicio['caracteristicas'], true);
+            }
         }
+        
+        jsonResponse(['success' => true, 'servicios' => $servicios]);
+    } else {
+        jsonResponse(['success' => false, 'message' => 'Error al cargar servicios'], 500);
     }
-    
-    jsonResponse(['success' => true, 'servicios' => $servicios]);
 }
 
-function getServicio() {
+function handleGet($modelo) {
     $id = $_GET['id'] ?? null;
     $slug = $_GET['slug'] ?? null;
     
@@ -72,20 +70,13 @@ function getServicio() {
         jsonResponse(['success' => false, 'message' => 'ID o slug requerido'], 400);
     }
     
-    $db = getDB();
-    
     if ($id) {
-        $stmt = $db->prepare("SELECT * FROM servicios WHERE id = ?");
-        $stmt->execute([$id]);
+        $servicio = $modelo->obtenerPorId($id);
     } else {
-        $stmt = $db->prepare("SELECT * FROM servicios WHERE slug = ?");
-        $stmt->execute([$slug]);
+        $servicio = $modelo->obtenerPorSlug($slug);
     }
     
-    $servicio = $stmt->fetch();
-    
     if ($servicio) {
-        // Decodificar características JSON
         if ($servicio['caracteristicas']) {
             $servicio['caracteristicas'] = json_decode($servicio['caracteristicas'], true);
         }
@@ -96,19 +87,18 @@ function getServicio() {
     }
 }
 
-function getServiciosDisponibles() {
-    $db = getDB();
+function handleDisponibles($modelo) {
+    $servicios = $modelo->obtenerDisponibles();
     
-    $stmt = $db->query("SELECT * FROM vista_servicios_disponibles");
-    $servicios = $stmt->fetchAll();
-    
-    // Decodificar características JSON
-    foreach ($servicios as &$servicio) {
-        if ($servicio['caracteristicas']) {
-            $servicio['caracteristicas'] = json_decode($servicio['caracteristicas'], true);
+    if ($servicios !== false) {
+        foreach ($servicios as &$servicio) {
+            if ($servicio['caracteristicas']) {
+                $servicio['caracteristicas'] = json_decode($servicio['caracteristicas'], true);
+            }
         }
+        
+        jsonResponse(['success' => true, 'servicios' => $servicios]);
+    } else {
+        jsonResponse(['success' => false, 'message' => 'Error al cargar servicios disponibles'], 500);
     }
-    
-    jsonResponse(['success' => true, 'servicios' => $servicios]);
 }
-?>
