@@ -4,7 +4,21 @@
  * Archivo: JS/checkout.js
  */
 
-const CART_API = '../controlador/carrito.php';
+const CART_API = (() => {
+    const path = window.location.pathname;
+    
+    if (path.includes('/public/HTML/') || path.includes('/HTML/')) {
+        return '../../controlador/carrito.php';  // Subir 2 niveles
+    }
+    else if (path.includes('/public/')) {
+        return '../controlador/carrito.php';  // Subir 1 nivel
+    }
+    else {
+        return 'controlador/carrito.php';  // Mismo nivel
+    }
+})();
+
+console.log('🔧 CART_API configurado:', CART_API);
 const ENVIO_COSTO = 10.00;
 const ENVIO_GRATIS_DESDE = 100.00;
 

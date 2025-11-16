@@ -3,8 +3,32 @@
  * Archivo: JS/servicios-dinamico.js
  */
 
-const SERVICIOS_API = '../controlador/servicios.php';
-const RESERVAS_API = '../controlador/reservas.php';
+const SERVICIOS_API = (() => {
+    const path = window.location.pathname;
+    
+    if (path.includes('/public/HTML/') || path.includes('/HTML/')) {
+        return '../controlador/servicios.php';  // Subir 2 niveles
+    }
+    else if (path.includes('/public/')) {
+        return '../controlador/servicios.php';  // Subir 1 nivel
+    }
+})();
+
+const RESERVAS_API = (() => {
+    const path = window.location.pathname;
+    
+    if (path.includes('/public/HTML/') || path.includes('/HTML/')) {
+        return '../../controlador/reservas.php';
+    }
+    else if (path.includes('/public/')) {
+        return '../controlador/reservas.php';
+    }
+    else {
+        return 'controlador/reservas.php';
+    }
+})();
+
+console.log('🔧 APIs configuradas:', { SERVICIOS_API, RESERVAS_API });
 
 let allServicios = [];
 let currentServicio = null;

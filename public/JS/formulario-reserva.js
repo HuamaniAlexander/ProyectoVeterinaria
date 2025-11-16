@@ -3,6 +3,20 @@
  * Maneja el envío del formulario de citas
  */
 
+const CITAS_API = (() => {
+    const path = window.location.pathname;
+    
+    if (path.includes('/public/HTML/') || path.includes('/HTML/')) {
+        return '../../controlador/citas.php';
+    }
+    else if (path.includes('/public/')) {
+        return '../controlador/citas.php';
+    }
+    else {
+        return 'controlador/citas.php';
+    }
+})();
+
 document.addEventListener('DOMContentLoaded', function() {
     const formularioReserva = document.getElementById('formularioReserva');
     
@@ -60,7 +74,7 @@ async function handleFormularioReserva(e) {
     }
     
     try {
-        const response = await fetch('../controlador/citas.php?action=create', {
+        const response = await fetch(`${CITAS_API}?action=create`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

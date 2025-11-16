@@ -3,7 +3,14 @@
  * Carga dinámica desde la base de datos
  */
 
-const API_URL = 'controlador/';
+const API_URL = (() => {
+    const path = window.location.pathname;
+    if (path.includes('/HTML/')) return '../../controlador/';
+    if (path.includes('/public/')) return '../controlador/';
+    return 'controlador/';
+})();
+
+console.log('🔧 API_URL slider:', API_URL);
 
 // ================================================
 // SLIDER SUPERIOR

@@ -1,15 +1,30 @@
 /**
  * Sistema de Carrito de Compras - PetZone
  * Archivo: JS/carrito.js
- * VERSIÓN CORREGIDA - Problemas resueltos
+ * VERSIÓN CON RUTAS CORREGIDAS
  */
 
-// Determinar la ruta correcta de la API según la ubicación de la página
-const CART_API = window.location.pathname.includes('/HTML/') 
-    ? '../controlador/carrito.php' 
-    : 'controlador/carrito.php';
+// ================================================
+// CONFIGURACIÓN DE RUTAS - CORREGIDO
+// ================================================
+const CART_API = (() => {
+    const path = window.location.pathname;
+    
+    // Si estamos en /public/HTML/
+    if (path.includes('/public/HTML/') || path.includes('/HTML/')) {
+        return '../../controlador/carrito.php';  // Subir 2 niveles
+    }
+    // Si estamos en /public/
+    else if (path.includes('/public/')) {
+        return '../controlador/carrito.php';  // Subir 1 nivel
+    }
+    // Si estamos en la raíz
+    else {
+        return 'controlador/carrito.php';  // Mismo nivel
+    }
+})();
 
-
+console.log('🔧 Ruta API configurada:', CART_API);
 
 // ================================================
 // INICIALIZACIÓN
@@ -17,7 +32,6 @@ const CART_API = window.location.pathname.includes('/HTML/')
 document.addEventListener('DOMContentLoaded', () => {
     loadCartCount();
     setupCartModal();
-    // NO llamar setupProductButtons aquí porque productos.html tiene su propio control
 });
 
 // ================================================
@@ -25,14 +39,20 @@ document.addEventListener('DOMContentLoaded', () => {
 // ================================================
 async function loadCartCount() {
     try {
-        const response = await fetch(`../${CART_API}?action=get`);
+        const response = await fetch(`${CART_API}?action=get`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
         const data = await response.json();
         
         if (data.success) {
             updateCartCount(data.totales.count);
         }
     } catch (error) {
-        console.error('Error al cargar carrito:', error);
+        console.error('❌ Error al cargar carrito:', error);
+        updateCartCount(0);
     }
 }
 
@@ -65,12 +85,14 @@ async function addToCart(button) {
     button.innerHTML = '<span class="material-icons rotating">sync</span> Agregando...';
     button.classList.add('adding');
     
-    // 🔥 LOG PARA DEBUG - Ver qué se está enviando
-    console.log('📤 Enviando datos:', {
+    const payload = {
         action: 'add',
         producto_id: productId,
         cantidad: quantity
-    });
+    };
+    
+    console.log('📤 Enviando a:', CART_API);
+    console.log('📦 Payload:', payload);
     
     try {
         const response = await fetch(CART_API, {
@@ -79,35 +101,34 @@ async function addToCart(button) {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({
-                action: 'add',
-                producto_id: productId,
-                cantidad: quantity
-            })
+            body: JSON.stringify(payload)
         });
         
-        // 🔥 LOG PARA DEBUG - Ver la respuesta del servidor
+        console.log('📡 Response status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const responseText = await response.text();
-        console.log('📥 Respuesta del servidor (raw):', responseText);
+        console.log('📥 Response (raw):', responseText.substring(0, 200));
         
         let data;
         try {
             data = JSON.parse(responseText);
         } catch (e) {
-            console.error('❌ Error al parsear JSON:', e);
-            console.log('Respuesta recibida:', responseText);
+            console.error('❌ JSON Parse Error:', e);
+            console.log('📄 Response completa:', responseText);
             throw new Error('Respuesta del servidor no es JSON válido');
         }
         
-        console.log('📥 Datos parseados:', data);
+        console.log('✅ Data parseada:', data);
         
         if (data.success) {
-            // ✅ TOAST EN VEZ DE ALERT
             showToast(`✓ ${productName} agregado al carrito`, 'success');
             updateCartCount(data.cart.count);
-            quantityInput.value = 1; // Resetear cantidad
+            quantityInput.value = 1;
             
-            // Animación de éxito
             button.innerHTML = '<span class="material-icons">check_circle</span> ¡Agregado!';
             
             setTimeout(() => {
@@ -123,7 +144,7 @@ async function addToCart(button) {
         }
     } catch (error) {
         console.error('❌ Error completo:', error);
-        showToast('Error de conexión con el servidor', 'error');
+        showToast('Error de conexión: ' + error.message, 'error');
         button.innerHTML = originalHTML;
         button.disabled = false;
         button.classList.remove('adding');
@@ -134,7 +155,6 @@ async function addToCart(button) {
 // MODAL DEL CARRITO
 // ================================================
 function setupCartModal() {
-    // Crear modal del carrito si no existe
     if (!document.getElementById('cartModal')) {
         const modalHTML = `
             <div id="cartModal" class="cart-modal">
@@ -201,17 +221,24 @@ function closeCartModal() {
 async function loadCartItems() {
     try {
         const response = await fetch(`${CART_API}?action=get`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
         const data = await response.json();
         
         const cartItemsDiv = document.getElementById('cartItems');
         const cartFooter = document.getElementById('cartFooter');
         
-        const isIndexPage = window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/');
+        // Detectar si estamos en index o en carpeta HTML
+        const isInHTMLFolder = window.location.pathname.includes('/HTML/');
+        const imagePrefix = isInHTMLFolder ? '../' : '';
 
         if (data.success && data.items.length > 0) { 
             cartItemsDiv.innerHTML = data.items.map(item => `
                 <div class="cart-item" data-id="${item.producto_id}">
-                    <img src="${isIndexPage ? item.imagen : '../' + item.imagen}" alt="${item.nombre}">
+                    <img src="${imagePrefix}${item.imagen}" alt="${item.nombre}" onerror=null>
                     <div class="cart-item-info">
                         <h3>${item.nombre}</h3>
                         <p class="cart-item-price">S/. ${parseFloat(item.precio_unitario).toFixed(2)} c/u</p>
@@ -235,12 +262,10 @@ async function loadCartItems() {
                 </div>
             `).join('');
             
-            // Calcular totales
             const subtotal = parseFloat(data.totales.subtotal);
             const envio = subtotal >= 100 ? 0 : 10;
             const total = subtotal + envio;
             
-            // Actualizar totales
             document.getElementById('cartSubtotal').textContent = `S/. ${subtotal.toFixed(2)}`;
             document.getElementById('cartEnvio').textContent = envio === 0 ? 'GRATIS' : `S/. ${envio.toFixed(2)}`;
             document.getElementById('cartTotal').textContent = `S/. ${total.toFixed(2)}`;
@@ -262,6 +287,7 @@ async function loadCartItems() {
             <div class="empty-cart">
                 <span class="material-icons">error</span>
                 <p>Error al cargar el carrito</p>
+                <p style="font-size: 0.85rem; color: #999;">${error.message}</p>
             </div>
         `;
     }
@@ -345,7 +371,12 @@ async function clearCart() {
 }
 
 function goToCheckout() {
-    window.location.href = '../HTML/checkout.html';
+    const path = window.location.pathname;
+    if (path.includes('/HTML/')) {
+        window.location.href = 'checkout.html';
+    } else {
+        window.location.href = 'public/HTML/checkout.html';
+    }
 }
 
 // ================================================
@@ -374,10 +405,9 @@ function decreaseQuantity(button) {
 }
 
 // ================================================
-// TOAST NOTIFICATIONS - SIN ALERTS
+// TOAST NOTIFICATIONS
 // ================================================
 function showToast(message, type = 'info') {
-    // Remover toast existente
     const existingToast = document.querySelector('.toast-notification');
     if (existingToast) {
         existingToast.remove();
@@ -420,4 +450,4 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-console.log('✅ Carrito.js cargado - Versión corregida');
+console.log('✅ Carrito.js cargado - Rutas corregidas v2');
