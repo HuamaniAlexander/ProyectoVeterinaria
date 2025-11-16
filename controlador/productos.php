@@ -220,7 +220,7 @@ function uploadImagen($file, $carpeta) {
     
     $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
     $nombreArchivo = uniqid() . '_' . time() . '.' . $extension;
-    $rutaDestino = __DIR__ . "/../IMG/{$carpeta}/";
+    $rutaDestino = __DIR__ . "/../public/IMG/{$carpeta}/";
     
     if (!file_exists($rutaDestino)) {
         mkdir($rutaDestino, 0777, true);
